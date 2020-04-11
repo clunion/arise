@@ -1,11 +1,28 @@
 [package]
-name = "rm_skin_gen"
-version = "0.1.0"
-authors = ["CLu"]
+name        = "rm_skin_gen"
+version     = "0.1.0"
+license     = "MIT"
+description = "A Rainmeter (tm) Skin Generator, a parameterized generator for rainmeter skins (ini-files)"
+authors     = ["Christian Lunau <Christian.Lunau@gmx.de>"]
+              
+edition     = "2018"
 
-[dependencies]
-rand = "0.3.14"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+homepage    = "https://github.com/clunion/rm_skin_gen"
+repository  = "https://github.com/clunion/rm_skin_gen"
+readme      = "README.md"
+keywords    = ["rust", "rust-lang", "clap", "rainmeter", "generator", "tool"]
+categories  = ["tools", "desktop", "monitoring"]
+
+# [features]
+# optimize = ["log/release_max_level_warn"]
+# default = ["optimize"]
 
 [[bin]]
 name = "rm_skin_gen"
-path = "src/rm_skin_gen.rs"
+path = "src/main.rs"
+
+[dependencies]
+clap = "2.33.3" 
+
