@@ -1,0 +1,11 @@
+[package]
+name = "rm_skin_gen"
+version = "0.1.0"
+authors = ["CLu"]
+
+[dependencies]
+rand = "0.3.14"
+
+[[bin]]
+name = "rm_skin_gen"
+path = "src/rm_skin_gen.rs"
