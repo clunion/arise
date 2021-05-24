@@ -16,7 +16,7 @@
 //! 0.2      | 2021-05-24 | Clunion   | building up some source structure, renamed from rm_skin_gen to arise
 //! ___________________________________________________________________________________________________________________________
 //!# Examples
-//!```
+//!```text
 //! arise(.exe)
 //!     Starts the program arise. 
 //!     Depending on the operating system the name may differ: on MS-Windows the program file has the extension '.exe'.
@@ -24,8 +24,8 @@
 //! arise(.exe) --help
 //!     Writes a short help text to the console window, which shows all available command line parameters and their meaning.
 //!
-//! arise(.exe) --generate=<an_existing_generator_definition_file>
-//!     Reads the generator definition (<name>.rms_sin_gen) from the given definition file, interprets it and generates new 
+//! arise(.exe) --source=<an_existing_arise_generator_definition_file>
+//!     Reads the generator definition (<name>.arise) from the given definition file, interprets it and generates new 
 //!     Rainmeter-ini file based on it.
 //!```
 //! ___________________________________________________________________________________________________________________________
