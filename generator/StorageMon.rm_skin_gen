@@ -1,0 +1,326 @@
+;-----------------------------------------------------------------
+; Rainmeter Skin Generator definition
+; <-- single line comment char, same as in rainmeter skins
+;-----------------------------------------------------------------
+
+/* <-- start of multi line comment, as in Rust and some other languages
+
+The Rainmeter Skin Generator generates a skin definition/description file (*.ini) for Rainmeter.
+
+This is a rainmeter skin generator definition file (*.rm_skin_gen) for use with rm_skin_gen.exe.
+
+The generator definition has 5 parts:
+	1. the generator control section
+	2. header   (copied to the begin of the skin as a single instance)
+	3. measures (gest multiplied in the skin definition)
+	4. meters   (gest multiplied in the skin definition)
+	5. footer   (copied to the end of the skin as a single instance)
+*/
+
+/*
+The Multiplier list specifies, how many times a measures and a meters section shall be generated.
+In each of the generated sections the named multiplier variable is replaced with the content of the
+List at the corresponding index-position. For example:
+<:drive:>   :=   'CDEFGHIJKLMNOPQRSTUVWXYZ'
+Means: there will be 24 measures sections
+        and also     24 meters sections
+generated.
+In the 1st set of sections the text <:drive:> will be replaced with 'C',
+In the 2nd set of sections the text <:drive:> will be replaced with 'D' and so on untill 'Z',
+*/
+<multiplier list begin>
+		<:drive:>   :=   'CDEFGHIJKLMNOPQRSTUVWXYZ'
+<multiplier list end>
+
+<offset varaibles begin>
+		<:vertical offset 1:>   := +20
+		<:horizontal offset 2:> := +2
+<offset varaibles end>
+
+
+<header begin>
+		;-----------------------------------------------
+		; StorageMon
+		;-----------------------------------------------
+
+		[Metadata]
+		Name=StorageMon
+		Information=Displays free Space and Activities of all Drives
+		Version=0.1
+		License=Creative Commons Attribution-Non-Commercial-Share Alike 3.0
+		Author=Christian Lunau
+
+		[Rainmeter]
+		Update=250
+		;Update=1000
+		;DefaultUpdateDivider=3
+		AccurateText=1
+		DynamicWindowSize=1
+
+		[Variables]
+		HiddenBaseFrame_Color=255,255,255,0
+		ReadingColor=0,255,0,200
+		WritingColor=255,0,0,200
+		ActivityGrid_Background_Color=0,0,0,140
+		DriveSpace_UpdateDivider=4
+		DriveActivity_UpdateDivider=1
+
+		[StringStyle_DriveLetter]
+		FontColor=220,220,220
+		FontEffectColor=0,0,0
+		StringEffect=Border
+		FontSize=12
+		FontFace=Segoe UI
+		StringStyle=BOLD
+		AntiAlias=1
+
+		[StringStyle_Measures]
+		FontColor=220,220,220
+		FontEffectColor=0,0,0
+		StringEffect=Border
+		FontSize=8
+		FontFace=Segoe UI
+		StringStyle=BOLD
+		AntiAlias=1
+<header end>
+
+
+<measures begin>
+		;-----------------------------------------------------
+		; Measures:
+		;-----------------------------------------------------
+
+		;-< C: >----------------------------------------------
+
+		[Measure_Drive_<:drive:>_Total]
+		Measure=FreeDiskSpace
+		Drive=<:drive:>:
+		IgnoreRemovable=0
+		UpdateDivider=#DriveSpace_UpdateDivider#
+		Total=1
+		IfCondition=(Measure_Drive_<:drive:>_Total=0)
+		IfTrueAction=[!HideMeterGroup "MeterGroup_Drive_<:drive:>"]
+		IfFalseAction=[!ShowMeterGroup "MeterGroup_Drive_<:drive:>"]
+		Group=MeasureGroup_Drive_<:drive:>
+
+		[Measure_Drive_<:drive:>_Type]
+		Measure=FreeDiskSpace
+		Drive=<:drive:>:
+		IgnoreRemovable=0
+		Type=1
+		Group=MeasureGroup_Drive_<:drive:>
+
+		[Measure_Drive_<:drive:>_Label]
+		Measure=FreeDiskSpace
+		Drive=<:drive:>:
+		IgnoreRemovable=0
+		Label=1
+		Group=MeasureGroup_Drive_<:drive:>
+
+		[Measure_Drive_<:drive:>_Free]
+		Measure=FreeDiskSpace
+		Drive=<:drive:>:
+		IgnoreRemovable=0
+		UpdateDivider=#DriveSpace_UpdateDivider#
+		Group=MeasureGroup_Drive_<:drive:>
+
+		[Measure_Drive_<:drive:>_Used]
+		Measure=FreeDiskSpace
+		Drive=<:drive:>:
+		IgnoreRemovable=0
+		UpdateDivider=#DriveSpace_UpdateDivider#
+		InvertMeasure=1
+		Group=MeasureGroup_Drive_<:drive:>
+
+
+		[Measure_Drive_<:drive:>_PercentUsed]
+		Measure=Calc
+		Formula=100/(Measure_Drive_<:drive:>_Total / Measure_Drive_<:drive:>_Used)
+		Group=MeasureGroup_Drive_<:drive:>
+
+
+		[Measure_Drive_<:drive:>_PercentFree]
+		Measure=Calc
+		Formula=100/(Measure_Drive_<:drive:>_Total / Measure_Drive_<:drive:>_Free)
+		Group=MeasureGroup_Drive_<:drive:>
+
+
+		[Measure_Drive_<:drive:>_Read]
+		Measure=Plugin
+		Plugin=PerfMon
+		PerfMonInstance=<:drive:>:
+		PerfMonObject=LogicalDisk
+		PerfMonCounter="Disk Read Bytes/sec"
+		UpdateDivider=#DriveActivity_UpdateDivider#
+		Group=MeasureGroup_Drive_<:drive:>
+
+		[Measure_Drive_<:drive:>_Write]
+		Measure=Plugin
+		Plugin=PerfMon
+		PerfMonInstance=<:drive:>:
+		PerfMonObject=LogicalDisk
+		PerfMonCounter="Disk Write Bytes/sec"
+		UpdateDivider=#DriveActivity_UpdateDivider#
+		Group=MeasureGroup_Drive_<:drive:>
+
+		[Measure_Drive_<:drive:>_ReadWrite]
+		Measure=Plugin
+		Plugin=PerfMon
+		PerfMonInstance=<:drive:>:
+		PerfMonObject=LogicalDisk
+		PerfMonCounter="Disk Bytes/sec"
+		UpdateDivider=#DriveActivity_UpdateDivider#
+		Group=MeasureGroup_Drive_<:drive:>
+<measures end>
+
+
+<meters begin>
+		;-----------------------------------------------------
+		; Meters:
+		;-----------------------------------------------------
+
+		;-< <:drive:>: >----------------------------------------------
+
+		[Meter_Drive_<:drive:>_BaseFrame]
+		Meter=IMAGE
+		X=0
+		Y=0
+		W=140
+		H=46
+		SolidColor=#HiddenBaseFrame_Color#
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+
+
+		[Meter_Drive_<:drive:>_Icon]
+		Meter=IMAGE
+		X=0r
+		Y=6r
+		W=36
+		H=36
+		ImageName=#@#Images\drive_type4_fixed.png
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+		ToolTipText=[Measure_Drive_<:drive:>_Label] ([Measure_Drive_<:drive:>_Type])
+		DynamicVariables=1
+		AutoScale=1
+
+		[Meter_Drive_<:drive:>_Letter]
+		Meter=STRING
+		MeterStyle=StringStyle_DriveLetter
+		StringAlign=CENTERCENTER
+		X=18r
+		Y=14r
+		Text=<:drive:>:
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+
+
+		[Meter_Drive_<:drive:>_DriveBar_Empty]
+		Meter=IMAGE
+		X=([Meter_Drive_<:drive:>_BaseFrame:X]+38)
+		Y=1
+		ImageName=#@#Images\drive_bar_empty.png
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+		DynamicVariables=1
+		AutoScale=1
+
+
+		[Meter_Drive_<:drive:>_DriveBar_Filled]
+		MeasureName=Measure_Drive_<:drive:>_Used
+		Meter=BAR
+		X=([Meter_Drive_<:drive:>_BaseFrame:X]+38)
+		Y=1
+		Barimage=#@#Images\drive_bar_filled.png
+		BarOrientation=HORIZONTAL
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+
+		[Meter_Drive_<:drive:>_Activity_Image]
+		Meter=IMAGE
+		X=([Meter_Drive_<:drive:>_BaseFrame:X]+38)
+		Y=1R
+		ImageName=#@#Images\drive_frame_activity.png
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+
+		[Meter_Drive_<:drive:>_Activity_Lines]
+		Meter=Line
+		MeasureName=Measure_Drive_<:drive:>_Read
+		MeasureName2=Measure_Drive_<:drive:>_Write
+		MeasureName3=Measure_Drive_<:drive:>_ReadWrite
+		X=6r
+		Y=4r
+		W=80
+		H=14
+		LineCount=2
+		LineColor=#ReadingColor#
+		LineColor2=#WritingColor#
+		LineWidth=1
+		SolidColor=#ActivityGrid_Background_Color#
+		LeftMouseUpAction=["<:drive:>:"]
+		ToolTipText=Reading: %1B/sec#CRLF#Writing: %2B/sec #CRLF#Both:  %3B/sec
+		Group=MeterGroup_Drive_<:drive:>
+
+		[Meter_Drive_<:drive:>_Activity_Write]
+		Meter=BAR
+		MeasureName=Measure_Drive_<:drive:>_Write
+		X=0R
+		Y=0r
+		W=4
+		H=14
+		BarColor=#WritingColor#
+		SolidColor=#ActivityGrid_Background_Color#
+		BarOrientation=Vertical
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+
+		[Meter_Drive_<:drive:>_Activity_Read]
+		Meter=BAR
+		MeasureName=Measure_Drive_<:drive:>_Read
+		X=0R
+		Y=0r
+		W=4
+		H=14
+		BarColor=#ReadingColor#
+		SolidColor=#ActivityGrid_Background_Color#
+		BarOrientation=Vertical
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+
+
+		[Meter_Drive_<:drive:>_DriveFree_String]
+		Meter=STRING
+		MeasureName=Measure_Drive_<:drive:>_Free
+		MeasureName2=Measure_Drive_<:drive:>_Used
+		MeasureName3=Measure_Drive_<:drive:>_Total
+		MeasureName4=Measure_Drive_<:drive:>_PercentFree
+		MeasureName5=Measure_Drive_<:drive:>_PercentUsed
+		X=132
+		Y=5
+		StringAlign=Right
+		MeterStyle=StringStyle_Measures
+		Text="%1B"
+		NumOfDecimals=0
+		AutoScale=1
+		LeftMouseUpAction=["<:drive:>:"]
+		ToolTipText=Total: %3B#CRLF#Used: %2B (%5%)#CRLF#Free:  %1B (%4%)
+		Group=MeterGroup_Drive_<:drive:>
+
+		[Meter_Drive_<:drive:>_EndFrame]
+		Meter=IMAGE
+		X=[Meter_Drive_<:drive:>_BaseFrame:X]
+		Y=[Meter_Drive_<:drive:>_BaseFrame:Y]
+		W=[Meter_Drive_<:drive:>_BaseFrame:W]
+		H=[Meter_Drive_<:drive:>_BaseFrame:H]
+		SolidColor=#HiddenBaseFrame_Color#
+		LeftMouseUpAction=["<:drive:>:"]
+		Group=MeterGroup_Drive_<:drive:>
+
+<meters end>
+
+
+<footer begin>
+; empty
+<footer end>
