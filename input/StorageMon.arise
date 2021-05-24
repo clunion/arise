@@ -7,14 +7,14 @@
 
 The Rainmeter Skin Generator generates a skin definition/description file (*.ini) for Rainmeter.
 
-This is a rainmeter skin generator definition file (*.rm_skin_gen) for use with rm_skin_gen.exe.
+This is a rainmeter skin generator definition file (*.rm_skin_gen) for use with the rm_skin_gen executable.
 
 The generator definition has 5 parts:
 	1. the generator control section
-	2. header   (copied to the begin of the skin as a single instance)
+	2. header   (copied to the begin of the skin definition (<skin-name>.ini) as a single instance)
 	3. measures (gest multiplied in the skin definition)
 	4. meters   (gest multiplied in the skin definition)
-	5. footer   (copied to the end of the skin as a single instance)
+	5. footer   (copied to the end of the skin definition as a single instance)
 */
 
 /*
@@ -26,16 +26,20 @@ Means: there will be 24 measures sections
         and also     24 meters sections
 generated.
 In the 1st set of sections the text <:drive:> will be replaced with 'C',
-In the 2nd set of sections the text <:drive:> will be replaced with 'D' and so on untill 'Z',
+In the 2nd set of sections the text <:drive:> will be replaced with 'D' and so on until 'Z',
 */
+
+RAINMETER_EXE     := "C:\Program Files\Rainmeter\Rainmeter.exe"
+RAINMETER_REFRESH := RAINMETER_EXE !RefreshApp
+
 <multiplier list begin>
 		<:drive:>   :=   'CDEFGHIJKLMNOPQRSTUVWXYZ'
 <multiplier list end>
 
-<offset varaibles begin>
+<offset variables begin>
 		<:vertical offset 1:>   := +20
 		<:horizontal offset 2:> := +2
-<offset varaibles end>
+<offset variables end>
 
 
 <header begin>
@@ -147,28 +151,28 @@ In the 2nd set of sections the text <:drive:> will be replaced with 'D' and so o
 
 		[Measure_Drive_<:drive:>_Read]
 		Measure=Plugin
-		Plugin=PerfMon
-		PerfMonInstance=<:drive:>:
-		PerfMonObject=LogicalDisk
-		PerfMonCounter="Disk Read Bytes/sec"
+		Plugin=UsageMonitor
+		Category=LogicalDisk
+		Counter=Disk Read Bytes/sec
+		Name=<:drive:>:
 		UpdateDivider=#DriveActivity_UpdateDivider#
 		Group=MeasureGroup_Drive_<:drive:>
 
 		[Measure_Drive_<:drive:>_Write]
 		Measure=Plugin
-		Plugin=PerfMon
-		PerfMonInstance=<:drive:>:
-		PerfMonObject=LogicalDisk
-		PerfMonCounter="Disk Write Bytes/sec"
+		Plugin=UsageMonitor
+		Category=LogicalDisk
+		Counter=Disk Write Bytes/sec
+		Name=<:drive:>:
 		UpdateDivider=#DriveActivity_UpdateDivider#
 		Group=MeasureGroup_Drive_<:drive:>
 
 		[Measure_Drive_<:drive:>_ReadWrite]
 		Measure=Plugin
-		Plugin=PerfMon
-		PerfMonInstance=<:drive:>:
-		PerfMonObject=LogicalDisk
-		PerfMonCounter="Disk Bytes/sec"
+		Plugin=UsageMonitor
+		Category=LogicalDisk
+		Counter=Disk Bytes/sec
+		Name=<:drive:>:
 		UpdateDivider=#DriveActivity_UpdateDivider#
 		Group=MeasureGroup_Drive_<:drive:>
 <measures end>
