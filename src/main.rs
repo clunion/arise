@@ -24,7 +24,7 @@
 //! arise(.exe) --help
 //!     Writes a short help text to the console window, which shows all available command line parameters and their meaning.
 //!
-//! arise(.exe) --source=<an_existing_arise_generator_definition_file>
+//! arise(.exe) --sourcefile=<an_existing_arise_generator_definition_file>
 //!     Reads the generator definition (<name>.arise) from the given definition file, interprets it and generates new 
 //!     Rainmeter-ini file based on it.
 //!```
@@ -55,7 +55,7 @@ use std::path::PathBuf;
 use arise::*; 
 
 //___ CONSTANTS: ______________________________________________________________________________________________________________
-const ARISE_DEFAULT_FILE_NAME      : &str = "StorageMon.arise";
+const ARISE_DEFAULT_SOURCEFILE_NAME      : &str = "StorageMon.arise";
 
 //___ TYPES: __________________________________________________________________________________________________________________
 //___ none ___
@@ -106,7 +106,7 @@ let     non_path     = PathBuf::from("does not exist");       // path does not e
 
 let     skin_name    = "StorageMon";                          // Name of the current Rainmeter-Skin to generate 
 
-let     gen_filename = PathBuf::from("StorageMon.arise");
+let     gen_filename = PathBuf::from(ARISE_DEFAULT_SOURCEFILE_NAME);
 
 let mut in_filename  = PathBuf::from(&in_path ); 
 
@@ -115,11 +115,11 @@ let cmd_line = clap::App::new("Arise")
                    .version("0.1")
                    .author("Clunion <Christian.Lunau@gmx.de>")
                    .about("A RaInmeter Skin Evolver")
-                   .arg(Arg::with_name("file")                         // <--CONFIG-File-------------------------------
+                   .arg(Arg::with_name("sourcefile")                   // <--Source-File-------------------------------
                        .short("f")
-                       .long("file")
-                       .value_name("FILE")
-                       .help("Sets a specific input file.")
+                       .long("sourcefile")
+                       .value_name("SOURCEFILE")
+                       .help("Sets a specific input file as source.")
                        .takes_value(true))
                    .arg(Arg::with_name("verbosity")                    // <--VERBOSITY --------------------------------
                        .short("v")
@@ -138,9 +138,9 @@ let cmd_line = clap::App::new("Arise")
                    .get_matches();
 
 // Get the name of a config-file, if supplied on command line, or defaults to config::INI_FILE_NAME
-let arise_filename = cmd_line.value_of("file").unwrap_or(ARISE_DEFAULT_FILE_NAME);
+let arise_filename = cmd_line.value_of("sourcefile").unwrap_or(ARISE_DEFAULT_SOURCEFILE_NAME);
 
-println!("arise-file: {}", arise_filename);
+println!("arise-filename: {}", arise_filename);
 
 
 in_filename.push(&gen_filename);
