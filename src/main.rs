@@ -1,7 +1,7 @@
 //! ___________________________________________________________________________________________________________________________
 //! **`PROJECT:    `** ARISE - A RaInmeter Skin Evolver    
 //! **`HOME:       `** [arise on GitHub](https://github.com/clunion/arise)    
-//! **`SYNOPSIS:   `** A Rainmeter (tm) Skin Generator, a parameterized generator for rainmeter skins (ini-files)
+//! **`SYNOPSIS:   `** A Rainmeter (tm) Skin Evolver, a parameterized generator for rainmeter ini-files   
 //! ___________________________________________________________________________________________________________________________
 //! **`FILE:       `** main.rs 🦀   
 //! **`DESCRIPTION:`** the main of arise, contains the one and only start and entry point of the program.   
@@ -13,6 +13,7 @@
 //! VERSION: | DATE:      | AUTHOR:   | CHANGES:   
 //! :---     | :---       | :---:     | :---   
 //! 0.1      | 2018-04-03 | Clunion   | creation
+//! 0.2      | 2021-05-24 | Clunion   | building up some source structure, renamed from rm_skin_gen to arise
 //! ___________________________________________________________________________________________________________________________
 //!# Examples
 //!```
@@ -54,7 +55,7 @@ use std::path::PathBuf;
 use arise::*; 
 
 //___ CONSTANTS: ______________________________________________________________________________________________________________
-//___ none ___
+const ARISE_DEFAULT_FILE_NAME      : &str = "StorageMon.arise";
 
 //___ TYPES: __________________________________________________________________________________________________________________
 //___ none ___
@@ -109,14 +110,13 @@ let     gen_filename = PathBuf::from("StorageMon.arise");
 
 let mut in_filename  = PathBuf::from(&in_path ); 
 
-
 // Parse the command line using clap:
 let cmd_line = clap::App::new("Arise")
                    .version("0.1")
                    .author("Clunion <Christian.Lunau@gmx.de>")
                    .about("A RaInmeter Skin Evolver")
                    .arg(Arg::with_name("file")                         // <--CONFIG-File-------------------------------
-                       .short("c")
+                       .short("f")
                        .long("file")
                        .value_name("FILE")
                        .help("Sets a specific input file.")
@@ -137,33 +137,26 @@ let cmd_line = clap::App::new("Arise")
                        .takes_value(false))
                    .get_matches();
 
-// Get the name of a config-file, if supplied on commandline, or defaults to config::INI_FILE_NAME
-let config_filename = cmd_line.value_of("configfile").unwrap_or(config::INI_FILE_NAME);
-shard_config.ini_file_name   = config_filename.to_string();
-info!("config-file: {}", shard_config.ini_file_name);
+// Get the name of a config-file, if supplied on command line, or defaults to config::INI_FILE_NAME
+let arise_filename = cmd_line.value_of("file").unwrap_or(ARISE_DEFAULT_FILE_NAME);
 
-
-
-
-
-
-
+println!("arise-file: {}", arise_filename);
 
 
 in_filename.push(&gen_filename);
 
 // Check preconditions to run:
-if !rmsg_exists_dir(&non_path)    {println!("wont be created now"); }
-if !rmsg_exists_dir(&res_path)    {match rmsg_create_dir(&res_path) {Ok(_) => println!("created: '{}'",res_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", res_path.display(), error),}; }
-if !rmsg_exists_dir(&in_path )    {match rmsg_create_dir(&in_path ) {Ok(_) => println!("created: '{}'",in_path .display()), Err(error) =>   panic!("couldn't create dir '{}': {}", in_path .display(), error),}; }
-if !rmsg_exists_dir(&out_path)    {match rmsg_create_dir(&out_path) {Ok(_) => println!("created: '{}'",out_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", out_path.display(), error),}; }
-if !rmsg_exists_dir(&ill_path)    {match rmsg_create_dir(&ill_path) {Ok(_) => println!("created: '{}'",ill_path.display()), Err(error) => println!("couldn't create dir '{}': {}", ill_path.display(), error),}; }
+if !exists_dir(&non_path)    {println!("wont be created now"); }
+if !exists_dir(&res_path)    {match create_dir(&res_path) {Ok(_) => println!("created: '{}'",res_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", res_path.display(), error),}; }
+if !exists_dir(&in_path )    {match create_dir(&in_path ) {Ok(_) => println!("created: '{}'",in_path .display()), Err(error) =>   panic!("couldn't create dir '{}': {}", in_path .display(), error),}; }
+if !exists_dir(&out_path)    {match create_dir(&out_path) {Ok(_) => println!("created: '{}'",out_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", out_path.display(), error),}; }
+if !exists_dir(&ill_path)    {match create_dir(&ill_path) {Ok(_) => println!("created: '{}'",ill_path.display()), Err(error) => println!("couldn't create dir '{}': {}", ill_path.display(), error),}; }
 
 println!("Input-File: '{}'", in_filename.display());
 
-if !rmsg_exists_file(&in_filename) {panic!("Error, input file not found '{}'", in_filename.display());}
+if !exists_file(&in_filename) {panic!("Error, input file not found '{}'", in_filename.display());}
 
-match rmsg_core_logic(&in_filename)
+match core_logic(&in_filename)
     {
         Ok(stat)   => { println!("got {}",stat); Ok(()) },
         Err(error) => { println!("Error saving config: {:?}", error); Err(error) },

@@ -1,18 +1,16 @@
 [package]
-name        = "rm_skin_gen"
+name        = "arise"
 version     = "0.1.0"
 license     = "MIT"
-description = "A Rainmeter (tm) Skin Generator, a parameterized generator for rainmeter skins (ini-files)"
+description = "A RaInmeter (tm) Skin Evolver, a parameterized generator for rainmeter ini-files"
 authors     = ["Christian Lunau <Christian.Lunau@gmx.de>"]
               
 edition     = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-homepage    = "https://github.com/clunion/rm_skin_gen"
-repository  = "https://github.com/clunion/rm_skin_gen"
+homepage    = "https://github.com/clunion/arise"
+repository  = "https://github.com/clunion/arise"
 readme      = "README.md"
-keywords    = ["rust", "rust-lang", "clap", "rainmeter", "generator", "tool"]
+keywords    = ["rust", "rust-lang", "rainmeter", "clap", "generator", "tool"]
 categories  = ["tools", "desktop", "monitoring"]
 
 # [features]
@@ -20,7 +18,7 @@ categories  = ["tools", "desktop", "monitoring"]
 # default = ["optimize"]
 
 [[bin]]
-name = "rm_skin_gen"
+name = "arise"
 path = "src/main.rs"
 
 [dependencies]

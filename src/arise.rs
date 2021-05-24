@@ -4,11 +4,11 @@
 #![allow(clippy::collapsible_if)]
 
 //! ___________________________________________________________________________________________________________________________
-//! **`PROJECT:    `** Rainmeter Skin Generator    
-//! **`HOME:       `** [rm_skin_gen on GitHub](https://github.com/clunion/rm_skin_gen)    
-//! **`SYNOPSIS:   `** A Rainmeter (tm) Skin Generator, a parameterized generator for rainmeter skins (ini-files)
+//! **`PROJECT:    `** ARISE - A RaInmeter Skin Evolver    
+//! **`HOME:       `** [arise on GitHub](https://github.com/clunion/arise)    
+//! **`SYNOPSIS:   `** A Rainmeter (tm) Skin Evolver, a parameterized generator for rainmeter ini-files   
 //! ___________________________________________________________________________________________________________________________
-//! **`FILE:       `** rm_skin_gen.rs 🦀   
+//! **`FILE:       `** arise.rs 🦀   
 //! **`DESCRIPTION:`** the core of th skin generator, contains the logic and some helper functions, ...   
 //! ___________________________________________________________________________________________________________________________
 //! **`LICENSE:    `**   
@@ -30,7 +30,7 @@
 //___ DECLARATIONS OF SUBMODULES TO INCLUDE: __________________________________________________________________________________
 // mod modules;                              // <dirname>
 // mod central_core;                         // <filename>
-// mod rm_skin_gen;                         // <filename>
+// mod arise;                         // <filename>
 
 //___ PATHS TO MODULES TO USE: ________________________________________________________________________________________________
 //use std::env;
@@ -171,7 +171,7 @@ match OpenOptions::new().create(true).write(true).open(path)
 }
 
 /// ___________________________________________________________________________________________________________________________
-/// **`FUNCTION:   `**  rmsg_create_dir   
+/// **`FUNCTION:   `**  create_dir   
 /// **`TYPE:       `**  simple function   
 /// ___________________________________________________________________________________________________________________________
 /// **`PARAMETER:  `** **` dir_p          `** - reference to a Path containing the name of the directory to be created   
@@ -185,7 +185,7 @@ match OpenOptions::new().create(true).write(true).open(path)
 /// :---    | :---       | :---:     | :---   
 /// 1.0     | 2018-##-## | Clunion   | initial version, based on an example from 'Rust By Example'   
 /// ___________________________________________________________________________________________________________________________
-pub(crate) fn rmsg_create_dir(dir_p: &Path) -> io::Result<()>
+pub(crate) fn create_dir(dir_p: &Path) -> io::Result<()>
 {
 match fs::create_dir(dir_p)
     {
@@ -196,7 +196,7 @@ match fs::create_dir(dir_p)
 }
 
 /// ___________________________________________________________________________________________________________________________
-/// **`FUNCTION:   `**  rmsg_create_path   
+/// **`FUNCTION:   `**  create_path   
 /// **`TYPE:       `**  simple function   
 /// ___________________________________________________________________________________________________________________________
 /// **`PARAMETER:  `** **` new_path_p     `** - name of the (multiple) directories to be created   
@@ -211,7 +211,7 @@ match fs::create_dir(dir_p)
 /// 1.0     | 2018-##-## | Clunion   | initial version, based on an example from 'Rust By Example'   
 /// ___________________________________________________________________________________________________________________________
 #[allow(dead_code)]
-pub(crate) fn rmsg_create_path(new_path_p: &Path) -> io::Result<()>
+pub(crate) fn create_path(new_path_p: &Path) -> io::Result<()>
 {
 match fs::create_dir_all(new_path_p)
     {
@@ -222,7 +222,7 @@ match fs::create_dir_all(new_path_p)
 }
 
 /// ___________________________________________________________________________________________________________________________
-/// **`FUNCTION:   `**  rmsg_exists_file   
+/// **`FUNCTION:   `**  exists_file   
 /// **`TYPE:       `**  simple function   
 /// ___________________________________________________________________________________________________________________________
 /// **`PARAMETER:  `** **` file_p           `** - name of the file to be checked for existence   
@@ -237,7 +237,7 @@ match fs::create_dir_all(new_path_p)
 /// 1.0     | 2018-##-## | Clunion   | initial version, based on an example from 'Rust By Example'   
 /// ___________________________________________________________________________________________________________________________
 #[allow(dead_code)]
-pub(crate) fn rmsg_exists_file(file_p: &Path) -> bool
+pub(crate) fn exists_file(file_p: &Path) -> bool
 {
 let retval = Path::new(file_p).exists();
 
@@ -250,7 +250,7 @@ retval
 
 
 /// ___________________________________________________________________________________________________________________________
-/// **`FUNCTION:   `**  rmsg_exists_dir   
+/// **`FUNCTION:   `**  exists_dir   
 /// **`TYPE:       `**  simple function   
 /// ___________________________________________________________________________________________________________________________
 /// **`PARAMETER:  `** **` path_p           `** - name of the directory to be checked for existence   
@@ -265,7 +265,7 @@ retval
 /// 1.0     | 2018-##-## | Clunion   | initial version, based on an example from 'Rust By Example'   
 /// ___________________________________________________________________________________________________________________________
 #[allow(dead_code)]
-pub(crate) fn rmsg_exists_dir(path_p: &Path) -> bool
+pub(crate) fn exists_dir(path_p: &Path) -> bool
 {
 let retval = Path::new(path_p).exists();
 
@@ -276,7 +276,7 @@ retval
 }
 
 /// ___________________________________________________________________________________________________________________________
-/// **`FUNCTION:   `**  rmsg_open_file   
+/// **`FUNCTION:   `**  open_file   
 /// **`TYPE:       `**  simple function   
 /// ___________________________________________________________________________________________________________________________
 /// **`PARAMETER:  `** **` file_name_p       `** - Reference to a Path containing the name of the Fle to be opened, including path   
@@ -292,7 +292,7 @@ retval
 /// 1.1     | 2020-01-17 | Clunion   | changed: parameter to PathBuf reference, return-types to File and io::Error, added println outputs     
 /// ___________________________________________________________________________________________________________________________
 #[allow(dead_code)]
-pub(crate) fn rmsg_open_file(file_name: &Path) -> Result<std::fs::File, std::io::Error>
+pub(crate) fn open_file(file_name: &Path) -> Result<std::fs::File, std::io::Error>
 {
 let _file = match File::open(file_name)
     {
@@ -304,7 +304,7 @@ let _file = match File::open(file_name)
 }
 
 /// ___________________________________________________________________________________________________________________________
-/// **`FUNCTION:   `**  rmsg_read_file_fully   
+/// **`FUNCTION:   `**  read_file_fully   
 /// **`TYPE:       `**  simple function   
 /// ___________________________________________________________________________________________________________________________
 /// **`PARAMETER:  `** **` file_path_p    `** - full path and filename of the file to be read   
@@ -319,7 +319,7 @@ let _file = match File::open(file_name)
 /// :---    | :---       | :---:     | :---   
 /// 1.0     | 2020-01-17 | Clunion   | created, initial version   
 /// ___________________________________________________________________________________________________________________________
-pub(crate) fn rmsg_read_file_fully(file_path: &Path) -> Result<String, std::io::Error>
+pub(crate) fn read_file_fully(file_path: &Path) -> Result<String, std::io::Error>
 {
 let mut data = String::new();
 
@@ -333,7 +333,7 @@ match file.read_to_string(&mut data)
 }
 
 /// ___________________________________________________________________________________________________________________________
-/// **`FUNCTION:   `**  rmsg_core_logic   
+/// **`FUNCTION:   `**  core_logic   
 /// **`TYPE:       `**  central core logic function   
 /// ___________________________________________________________________________________________________________________________
 /// **`PARAMETER:  `** **` file_path_p    `** - full path and filename of the file to be read   
@@ -348,7 +348,7 @@ match file.read_to_string(&mut data)
 /// :---    | :---       | :---:     | :---   
 /// 1.0     | 2020-01-17 | Clunion   | created, initial version   
 /// ___________________________________________________________________________________________________________________________
-pub(crate) fn rmsg_core_logic(gen_file_path_p: &Path) -> Result<bool, io::Error>
+pub(crate) fn core_logic(gen_file_path_p: &Path) -> Result<bool, io::Error>
 {
 let     _bret: bool  = false;                                 // common boolean return value
 let     res_path     = PathBuf::from("resources");
@@ -359,7 +359,7 @@ let     non_path     = PathBuf::from("does not exist");       // path does not e
 
 let     skin_name    = "StorageMon";                          // Name of the current Rainmeter-Skin to generate 
 
-//let     gen_filename = PathBuf::from("StorageMon.rm_skin_gen");
+//let     gen_filename = PathBuf::from("StorageMon.arise");
 let     out_filename = PathBuf::from("StorageMon.ini");
 
 // counter for defined Literals, which are found:
@@ -393,17 +393,17 @@ let mut section_footer_end_cnt      : i32 = 0;
 let mut  in_filename = PathBuf::from(&in_path ); in_filename.push(&gen_file_path_p);
 
 // Check preconditions to run:
-if !rmsg_exists_dir(&non_path)    {println!("wont be created now"); }
-if !rmsg_exists_dir(&res_path)    {match rmsg_create_dir(&res_path) {Ok(_) => println!("created: '{}'",res_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", res_path.display(), error),}; }
-if !rmsg_exists_dir(&in_path )    {match rmsg_create_dir(&in_path ) {Ok(_) => println!("created: '{}'",in_path .display()), Err(error) =>   panic!("couldn't create dir '{}': {}", in_path .display(), error),}; }
-if !rmsg_exists_dir(&out_path)    {match rmsg_create_dir(&out_path) {Ok(_) => println!("created: '{}'",out_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", out_path.display(), error),}; }
-if !rmsg_exists_dir(&ill_path)    {match rmsg_create_dir(&ill_path) {Ok(_) => println!("created: '{}'",ill_path.display()), Err(error) => println!("couldn't create dir '{}': {}", ill_path.display(), error),}; }
+if !exists_dir(&non_path)    {println!("wont be created now"); }
+if !exists_dir(&res_path)    {match create_dir(&res_path) {Ok(_) => println!("created: '{}'",res_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", res_path.display(), error),}; }
+if !exists_dir(&in_path )    {match create_dir(&in_path ) {Ok(_) => println!("created: '{}'",in_path .display()), Err(error) =>   panic!("couldn't create dir '{}': {}", in_path .display(), error),}; }
+if !exists_dir(&out_path)    {match create_dir(&out_path) {Ok(_) => println!("created: '{}'",out_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", out_path.display(), error),}; }
+if !exists_dir(&ill_path)    {match create_dir(&ill_path) {Ok(_) => println!("created: '{}'",ill_path.display()), Err(error) => println!("couldn't create dir '{}': {}", ill_path.display(), error),}; }
 
 println!("Input-File: '{}'", in_filename.display());
 
-if !rmsg_exists_file(&in_filename) {panic!("Error, input file not found '{}'", in_filename.display());}
+if !exists_file(&in_filename) {panic!("Error, input file not found '{}'", in_filename.display());}
 
-let s_gen = match rmsg_read_file_fully(&in_filename)
+let s_gen = match read_file_fully(&in_filename)
     {
     Ok(s_gen)    => {println!("OK, read from file {}", in_filename.display());s_gen},
     Err(error)   => {panic!("Read from file {} failed with {}",in_filename.display(),error)},
