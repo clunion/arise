@@ -355,12 +355,8 @@ let     _bret: bool  = false;                                 // common boolean 
 let     res_path     = PathBuf::from("resources");
 let     in_path      = PathBuf::from("input");
 let     out_path     = PathBuf::from("output");
-let     ill_path     = PathBuf::from("il:legal");             // illegal, not creatable Path (only for testing of the error handling)
-let     non_path     = PathBuf::from("does not exist");       // path does not exist         (only for testing of the error handling)
 
 let     skin_name    = "StorageMon";                          // Name of the current Rainmeter-Skin to generate 
-
-//let     gen_filename = PathBuf::from("StorageMon.arise");
 let     out_filename = PathBuf::from("StorageMon.ini");
 
 // counter for defined Literals, which are found:
@@ -394,11 +390,9 @@ let mut section_footer_end_cnt      : i32 = 0;
 let mut  in_filename = PathBuf::from(&in_path ); in_filename.push(&gen_file_path_p);
 
 // Check preconditions to run:
-if !exists_dir(&non_path)    {println!("wont be created now"); }
 if !exists_dir(&res_path)    {match create_dir(&res_path) {Ok(_) => println!("created: '{}'",res_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", res_path.display(), error),}; }
 if !exists_dir(&in_path )    {match create_dir(&in_path ) {Ok(_) => println!("created: '{}'",in_path .display()), Err(error) =>   panic!("couldn't create dir '{}': {}", in_path .display(), error),}; }
 if !exists_dir(&out_path)    {match create_dir(&out_path) {Ok(_) => println!("created: '{}'",out_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", out_path.display(), error),}; }
-if !exists_dir(&ill_path)    {match create_dir(&ill_path) {Ok(_) => println!("created: '{}'",ill_path.display()), Err(error) => println!("couldn't create dir '{}': {}", ill_path.display(), error),}; }
 
 println!("Input-File: '{}'", in_filename.display());
 
