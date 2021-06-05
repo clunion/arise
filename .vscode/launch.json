@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'rm_skin_gen'",
+            "name": "Debug executable 'arise'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=rm_skin_gen",
-                    "--package=rm_skin_gen"
+                    "--bin=arise",
+                    "--package=arise"
                 ],
                 "filter": {
-                    "name": "rm_skin_gen",
+                    "name": "arise",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'rm_skin_gen'",
+            "name": "Debug unit tests in executable 'arise'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=rm_skin_gen",
-                    "--package=rm_skin_gen"
+                    "--bin=arise",
+                    "--package=arise"
                 ],
                 "filter": {
-                    "name": "rm_skin_gen",
+                    "name": "arise",
                     "kind": "bin"
                 }
             },

@@ -47,15 +47,17 @@ use clap::Arg;
 // use std::cmp::Ordering;
 
 // use std::error::Error;
-use std::io::ErrorKind;
+// use std::io::ErrorKind;
 
-use std::path::Path;
+// use std::path::Path;
 use std::path::PathBuf;
 
 use arise::*; 
 
 //___ CONSTANTS: ______________________________________________________________________________________________________________
-const ARISE_DEFAULT_SOURCEFILE_NAME      : &str = "StorageMon.arise";
+const ARISE_FILE_EXTENSION:      &str = ".arise";
+const RAINMETER_FILE_EXTENSION:  &str = ".ini";
+const DEFAULT_SKIN_NAME:         &str = "StorageMon";
 
 //___ TYPES: __________________________________________________________________________________________________________________
 //___ none ___
@@ -97,28 +99,23 @@ const ARISE_DEFAULT_SOURCEFILE_NAME      : &str = "StorageMon.arise";
 
 fn main() -> Result<(), io::Error>
 {
-let     _bret: bool  = false;                                 // common boolean return value
-let     res_path     = PathBuf::from("resources");
-let     in_path      = PathBuf::from("input");
-let     out_path     = PathBuf::from("output");
-let     ill_path     = PathBuf::from("il:legal");             // illegal, not creatable Path (only for testing of the error handling)
-let     non_path     = PathBuf::from("does not exist");       // path does not exist         (only for testing of the error handling)
+let     _bret: bool   = false;                                 // common boolean return value
+let     res_path      = PathBuf::from("resources");
+let     inp_path      = PathBuf::from("input");
+let     out_path      = PathBuf::from("output");
 
-let     skin_name    = "StorageMon";                          // Name of the current Rainmeter-Skin to generate 
-
-let     gen_filename = PathBuf::from(ARISE_DEFAULT_SOURCEFILE_NAME);
-
-let mut in_filename  = PathBuf::from(&in_path ); 
+let mut arise_filename = format!("{}{}",DEFAULT_SKIN_NAME,ARISE_FILE_EXTENSION);
+let mut skin_filename  = format!("{}{}",DEFAULT_SKIN_NAME,RAINMETER_FILE_EXTENSION);          // Name of the current Rainmeter-Skin to generate 
 
 // Parse the command line using clap:
 let cmd_line = clap::App::new("Arise")
                    .version("0.1")
                    .author("Clunion <Christian.Lunau@gmx.de>")
                    .about("A RaInmeter Skin Evolver")
-                   .arg(Arg::with_name("sourcefile")                   // <--Source-File-------------------------------
+                   .arg(Arg::with_name("arisefile")                   // <--arise-File (=Source)-----------------------
                        .short("f")
-                       .long("sourcefile")
-                       .value_name("SOURCEFILE")
+                       .long("arisefile")
+                       .value_name("ARISEFILE")
                        .help("Sets a specific input file as source.")
                        .takes_value(true))
                    .arg(Arg::with_name("verbosity")                    // <--VERBOSITY --------------------------------
@@ -126,37 +123,44 @@ let cmd_line = clap::App::new("Arise")
                        .multiple(true)
                        .help("Sets the level of verbosity, more vs, more chatter."))
                    .arg(Arg::with_name("test-mode")                    // <--TEST-MODE---------------------------------
-                       .help("Lets the program run in testing mode.")
+                       .help("Starts the program in testing mode.")
                        .short("t")
                        .long("test")
                        .takes_value(false))
                    .arg(Arg::with_name("debug-mode")                   // <--DEBUG-MODE--------------------------------
                        .short("d")
                        .long("debug")
-                       .help("Lets the program run in debug mode.")
+                       .help("Starts the program in debug mode.")
                        .takes_value(false))
                    .get_matches();
 
 // Get the name of a config-file, if supplied on command line, or defaults to config::INI_FILE_NAME
-let arise_filename = cmd_line.value_of("sourcefile").unwrap_or(ARISE_DEFAULT_SOURCEFILE_NAME);
+// let arise_filename = cmd_line.value_of("arisefile").unwrap_or(DEFAULT_SKIN_NAME);
 
-println!("arise-filename: {}", arise_filename);
-
-
-in_filename.push(&gen_filename);
+println!("res_path:       {}", res_path.display());
+println!("inp_path:       {}", inp_path.display());
+println!("out_path:       {}", out_path.display());
 
 // Check preconditions to run:
-if !exists_dir(&non_path)    {println!("wont be created now"); }
-if !exists_dir(&res_path)    {match create_dir(&res_path) {Ok(_) => println!("created: '{}'",res_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", res_path.display(), error),}; }
-if !exists_dir(&in_path )    {match create_dir(&in_path ) {Ok(_) => println!("created: '{}'",in_path .display()), Err(error) =>   panic!("couldn't create dir '{}': {}", in_path .display(), error),}; }
-if !exists_dir(&out_path)    {match create_dir(&out_path) {Ok(_) => println!("created: '{}'",out_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", out_path.display(), error),}; }
-if !exists_dir(&ill_path)    {match create_dir(&ill_path) {Ok(_) => println!("created: '{}'",ill_path.display()), Err(error) => println!("couldn't create dir '{}': {}", ill_path.display(), error),}; }
+if !exists_dir(&res_path)  {match create_dir(&res_path) {Ok(_) => println!("created: '{}'",res_path.display()), Err(error) => panic!("couldn't create dir '{}': {}", res_path.display(), error),}; }
+if !exists_dir(&inp_path)  {match create_dir(&inp_path) {Ok(_) => println!("created: '{}'",inp_path.display()), Err(error) => panic!("couldn't create dir '{}': {}", inp_path.display(), error),}; }
+if !exists_dir(&out_path)  {match create_dir(&out_path) {Ok(_) => println!("created: '{}'",out_path.display()), Err(error) => panic!("couldn't create dir '{}': {}", out_path.display(), error),}; }
 
-println!("Input-File: '{}'", in_filename.display());
 
-if !exists_file(&in_filename) {panic!("Error, input file not found '{}'", in_filename.display());}
+let mut inp_full_filename = PathBuf::from(&inp_path); 
+        inp_full_filename.push(&arise_filename);
 
-match core_logic(&in_filename)
+let mut out_full_filename = PathBuf::from(&out_path); 
+        out_full_filename.push(&skin_filename);
+
+println!("arise-filename:       {}", arise_filename);
+println!("skin-filename:        {}", skin_filename);
+println!("input-full-filename:  {}", inp_full_filename.display());
+println!("output-full-filename: {}", out_full_filename.display());
+
+if !exists_file(&inp_full_filename) {panic!("Error, input arise file not found '{}'", inp_full_filename.display());}
+
+match core_logic(&res_path, &inp_full_filename, &out_full_filename)
     {
         Ok(stat)   => { println!("got {}",stat); Ok(()) },
         Err(error) => { println!("Error saving config: {:?}", error); Err(error) },

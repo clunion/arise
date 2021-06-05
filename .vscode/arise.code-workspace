@@ -4,7 +4,11 @@
 			"path": ".."
 		}
 	],
-	"settings": {},
+	"settings": {
+		"cSpell.words": [
+			"arisefile"
+		]
+	},
 	"extensions": {
 		"recommendations": [
 			"streetsidesoftware.code-spell-checker"

@@ -349,15 +349,9 @@ match file.read_to_string(&mut data)
 /// :---    | :---       | :---:     | :---   
 /// 1.0     | 2020-01-17 | Clunion   | created, initial version   
 /// ___________________________________________________________________________________________________________________________
-pub(crate) fn core_logic(gen_file_path_p: &Path) -> Result<bool, io::Error>
+pub(crate) fn core_logic(res_path_p: &Path, inp_full_filename_p: &Path, out_full_filename_p: &Path) -> Result<bool, io::Error>
 {
 let     _bret: bool  = false;                                 // common boolean return value
-let     res_path     = PathBuf::from("resources");
-let     in_path      = PathBuf::from("input");
-let     out_path     = PathBuf::from("output");
-
-let     skin_name    = "StorageMon";                          // Name of the current Rainmeter-Skin to generate 
-let     out_filename = PathBuf::from("StorageMon.ini");
 
 // counter for defined Literals, which are found:
 let mut comment_singleline_cnt      : i32 = 0;
@@ -386,22 +380,12 @@ let mut section_meters_end_cnt      : i32 = 0;
 let mut section_footer_begin_cnt    : i32 = 0;
 let mut section_footer_end_cnt      : i32 = 0;
 
+println!(">>> START OF: core_logic({},{},{})", res_path_p.display(), inp_full_filename_p.display(), out_full_filename_p.display());
 
-let mut  in_filename = PathBuf::from(&in_path ); in_filename.push(&gen_file_path_p);
-
-// Check preconditions to run:
-if !exists_dir(&res_path)    {match create_dir(&res_path) {Ok(_) => println!("created: '{}'",res_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", res_path.display(), error),}; }
-if !exists_dir(&in_path )    {match create_dir(&in_path ) {Ok(_) => println!("created: '{}'",in_path .display()), Err(error) =>   panic!("couldn't create dir '{}': {}", in_path .display(), error),}; }
-if !exists_dir(&out_path)    {match create_dir(&out_path) {Ok(_) => println!("created: '{}'",out_path.display()), Err(error) =>   panic!("couldn't create dir '{}': {}", out_path.display(), error),}; }
-
-println!("Input-File: '{}'", in_filename.display());
-
-if !exists_file(&in_filename) {panic!("Error, input file not found '{}'", in_filename.display());}
-
-let s_gen = match read_file_fully(&in_filename)
+let s_gen = match read_file_fully(&inp_full_filename_p)
     {
-    Ok(s_gen)    => {println!("OK, read from file {}", in_filename.display());s_gen},
-    Err(error)   => {panic!("Read from file {} failed with {}",in_filename.display(),error)},
+    Ok(s_gen)    => {println!("OK, read from file {}", inp_full_filename_p.display());s_gen},
+    Err(error)   => {panic!("Read from file {} failed with {}",inp_full_filename_p.display(),error)},
     };
 
 let s_gen_len      = s_gen.len();
