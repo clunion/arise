@@ -19,5 +19,5 @@ else
         echo "unknown"
 fi
 
-echo gdb target/debug/shardoverse$exeext
-     gdb target/debug/shardoverse$exeext
+echo gdb target/debug/arise$exeext
+     gdb target/debug/arise$exeext

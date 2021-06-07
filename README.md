@@ -6,7 +6,8 @@
 
 ## What is this?
 
-Arise is a simple tool to evolve (generate) Rainmeter skins (.ini-files) from template files (.arise-files).
+***A*** ***R***a***I***nmeter ***S***kin ***E***volver  
+Arise is a simple tool to evolve (generate) [Rainmeter](https://www.rainmeter.net/) skins (.ini-files) from template files (.arise-files).
 
 ## What for?
 
@@ -32,4 +33,5 @@ Git and a repository on Github are set up.
 ## Communicate
 
 (currently, the discord server of Shardoverse may be used.)
+
 * [Discord-Server Shardoverse](https://discord.gg/PWAtRU)

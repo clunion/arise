@@ -104,8 +104,8 @@ let     res_path      = PathBuf::from("resources");
 let     inp_path      = PathBuf::from("input");
 let     out_path      = PathBuf::from("output");
 
-let mut arise_filename = format!("{}{}",DEFAULT_SKIN_NAME,ARISE_FILE_EXTENSION);
-let mut skin_filename  = format!("{}{}",DEFAULT_SKIN_NAME,RAINMETER_FILE_EXTENSION);          // Name of the current Rainmeter-Skin to generate 
+let     arise_filename = format!("{}{}",DEFAULT_SKIN_NAME,ARISE_FILE_EXTENSION);
+let     skin_filename  = format!("{}{}",DEFAULT_SKIN_NAME,RAINMETER_FILE_EXTENSION);          // Name of the current Rainmeter-Skin to generate 
 
 // Parse the command line using clap:
 let cmd_line = clap::App::new("Arise")

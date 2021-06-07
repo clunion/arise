@@ -17,7 +17,7 @@ else
     printf "##<<<<< cargo build: OK \n"
 fi 
 
-filename=.\\target\\release\\shardoverse.exe
+filename=.\\target\\release\\arise.exe
 file_size_byte=0
 file_size_kb=0
 
