@@ -21,10 +21,13 @@ non-matching visuals. And every change affecting the layout requires the computa
 
 To solve that, a generator able to compute all the coordinates would be needed. That is what 'arise' is for.
 
+And since this is a rather small and simple application, it may serve as a showcase for setting up a nearly minimal rust project.
+
 ## Current state
 
 Most things of the development environment like  
 Git and a repository on Github are set up.  
+Added clap and flexi_logger recently.
 
 ## Maintainer of arise
 
