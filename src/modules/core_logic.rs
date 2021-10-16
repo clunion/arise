@@ -50,6 +50,9 @@ use std::path::Path;
 // use std::error::Error;
 use std::io::ErrorKind;
 
+#[allow(unused_imports)]
+use log::{trace, debug, info, warn, error};
+
 
 //___ CONSTANTS: ______________________________________________________________________________________________________________
 const COMMENT_SINGLELINE      : &str = ";";
@@ -189,9 +192,9 @@ pub(crate) fn create_dir(dir_p: &Path) -> io::Result<()>
 {
 match fs::create_dir(dir_p)
     {
-    Ok(_)      => {println!("OK, created dir: {}", dir_p.display());Ok(())},
-    Err(ref error) if error.kind() == ErrorKind::AlreadyExists => {println!("OK, dir {} already exists.", dir_p.display());Ok(())},
-    Err(error) => {println!("couldn't create dir '{}': {}", dir_p.display(), error); Err(error)},
+    Ok(_)      => {debug!("OK, created dir: {}", dir_p.display());Ok(())},
+    Err(ref error) if error.kind() == ErrorKind::AlreadyExists => {error!("OK, dir {} already exists.", dir_p.display());Ok(())},
+    Err(error) => {error!("couldn't create dir '{}': {}", dir_p.display(), error); Err(error)},
     }
 }
 
@@ -215,7 +218,7 @@ pub(crate) fn create_path(new_path_p: &Path) -> io::Result<()>
 {
 match fs::create_dir_all(new_path_p)
     {
-    Ok(_)    => {println!("OK, all dirs created: '{}'",new_path_p.display());                                             Ok(()) },
+    Ok(_)    => {debug!("OK, all dirs created: '{}'",new_path_p.display());                                             Ok(()) },
     Err(ref e) if e.kind() == ErrorKind::AlreadyExists => {println!("OK, path {} already exists.", new_path_p.display()); Ok(()) },
     Err(error) => {println!("Error, creating dirs '{}' failed with: {}",new_path_p.display(), error);          Err(error)},
     }
@@ -241,7 +244,7 @@ pub(crate) fn exists_file(file_p: &Path) -> bool
 {
 let retval = Path::new(file_p).exists();
 
-if retval {println!("OK, file exists: '{}'"          ,file_p.display());}
+if retval {debug!("OK, file exists: '{}'"          ,file_p.display());}
 else      {println!("NOPE, file does not exist: '{}'",file_p.display());}
 
 retval
@@ -269,7 +272,7 @@ pub(crate) fn exists_dir(path_p: &Path) -> bool
 {
 let retval = Path::new(path_p).exists();
 
-if retval {println!("OK, dir exists: '{}'"          ,path_p.display());}
+if retval {debug!("OK, dir exists: '{}'"          ,path_p.display());}
 else      {println!("NOPE, dir does not exist: '{}'",path_p.display());}
 
 retval
@@ -292,13 +295,13 @@ retval
 /// 1.1     | 2020-01-17 | Clunion   | changed: parameter to PathBuf reference, return-types to File and io::Error, added println outputs     
 /// ___________________________________________________________________________________________________________________________
 #[allow(dead_code)]
-pub(crate) fn open_file(file_name: &Path) -> Result<std::fs::File, std::io::Error>
+pub(crate) fn open_file(file_name: &Path) -> Result<File, std::io::Error>
 {
 let _file = match File::open(file_name)
     {
-    Ok(f)    => { println!("OK, file opened: {}", file_name.display());
+    Ok(f)    => { debug!("OK, file opened: {}", file_name.display());
                   return  Ok(f)},
-    Err(error) => { println!("Error, couldn't open file '{}': {}", file_name.display(), error);
+    Err(error) => { error!("Error, couldn't open file '{}': {}", file_name.display(), error);
                   return Err(error)},
     };
 }
@@ -381,7 +384,7 @@ let mut section_footer_end_cnt      : i32 = 0;
 
 println!(">>> START OF: core_logic({},{},{})", res_path_p.display(), inp_full_filename_p.display(), out_full_filename_p.display());
 
-let s_gen = match read_file_fully(&inp_full_filename_p)
+let s_gen = match read_file_fully(inp_full_filename_p)
     {
     Ok(s_gen)    => {println!("OK, read from file {}", inp_full_filename_p.display());s_gen},
     Err(error)   => {panic!("Read from file {} failed with {}",inp_full_filename_p.display(),error)},
@@ -390,11 +393,11 @@ let s_gen = match read_file_fully(&inp_full_filename_p)
 let s_gen_len      = s_gen.len();
 let s_gen_capacity = s_gen.capacity();
 
-println!("the generator-source code has len={}, capacity={}", s_gen_len,s_gen_capacity);
+debug!("the generator-source code has len={}, capacity={}", s_gen_len,s_gen_capacity);
 
 let s_gen_lines = s_gen.lines();
 
-println!("-----------------------------------------------------------");
+debug!("-----------------------------------------------------------");
 for s_cur_line in s_gen_lines
     {
     if s_cur_line.contains(COMMENT_SINGLELINE     ) {comment_singleline_cnt      += 1;}
@@ -423,31 +426,31 @@ for s_cur_line in s_gen_lines
     if s_cur_line.contains(SECTION_FOOTER_BEGIN    ) {section_footer_begin_cnt   += 1;}
     if s_cur_line.contains(SECTION_FOOTER_END      ) {section_footer_end_cnt     += 1;}
 
-    println!("{}", s_cur_line)
+    debug!("{}", s_cur_line)
     }
 
-println!("-----------------------------------------------------------");
-println!("Found Literals, Operators and Keys with counts of:");
-println!("{:>26} = {:3}",format!("\"{}\"",COMMENT_SINGLELINE     ), comment_singleline_cnt      );
-println!("{:>26} = {:3}",format!("\"{}\"",COMMENT_MULTILINE_BEGIN), comment_multiline_begin_cnt );
-println!("{:>26} = {:3}",format!("\"{}\"",COMMENT_MULTILINE_END  ), comment_multiline_end_cnt   );
-println!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_ASSIGN        ), operator_assign_cnt         );
-println!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_PLUS          ), operator_plus_cnt           );
-println!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_MINUS         ), operator_minus_cnt          );
-println!("{:>26} = {:3}",format!("\"{}\"",KEY_NAME_BEGIN         ), key_name_begin_cnt          );
-println!("{:>26} = {:3}",format!("\"{}\"",KEY_NAME_END           ), key_name_end_cnt            );
-println!("{:>26} = {:3}",format!("\"{}\"",MULTIPLIER_LIST_BEGIN  ), multiplier_list_begin_cnt   );
-println!("{:>26} = {:3}",format!("\"{}\"",MULTIPLIER_LIST_END    ), multiplier_list_end_cnt     );
-println!("{:>26} = {:3}",format!("\"{}\"",OFFSET_VARIABLES_BEGIN ), offset_variables_begin_cnt  );
-println!("{:>26} = {:3}",format!("\"{}\"",OFFSET_VARIABLES_END   ), offset_variables_end_cnt    );
-println!("{:>26} = {:3}",format!("\"{}\"",SECTION_HEADER_BEGIN   ), section_header_begin_cnt    );
-println!("{:>26} = {:3}",format!("\"{}\"",SECTION_HEADER_END     ), section_header_end_cnt      );
-println!("{:>26} = {:3}",format!("\"{}\"",SECTION_MEASURES_BEGIN ), section_measures_begin_cnt  );
-println!("{:>26} = {:3}",format!("\"{}\"",SECTION_MEASURES_END   ), section_measures_end_cnt    );
-println!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_BEGIN   ), section_meters_begin_cnt    );
-println!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_END     ), section_meters_end_cnt      );
-println!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_BEGIN   ), section_footer_begin_cnt    );
-println!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_END     ), section_footer_end_cnt      );
+debug!("-----------------------------------------------------------");
+debug!("Found Literals, Operators and Keys with counts of:");
+debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_SINGLELINE     ), comment_singleline_cnt      );
+debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_MULTILINE_BEGIN), comment_multiline_begin_cnt );
+debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_MULTILINE_END  ), comment_multiline_end_cnt   );
+debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_ASSIGN        ), operator_assign_cnt         );
+debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_PLUS          ), operator_plus_cnt           );
+debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_MINUS         ), operator_minus_cnt          );
+debug!("{:>26} = {:3}",format!("\"{}\"",KEY_NAME_BEGIN         ), key_name_begin_cnt          );
+debug!("{:>26} = {:3}",format!("\"{}\"",KEY_NAME_END           ), key_name_end_cnt            );
+debug!("{:>26} = {:3}",format!("\"{}\"",MULTIPLIER_LIST_BEGIN  ), multiplier_list_begin_cnt   );
+debug!("{:>26} = {:3}",format!("\"{}\"",MULTIPLIER_LIST_END    ), multiplier_list_end_cnt     );
+debug!("{:>26} = {:3}",format!("\"{}\"",OFFSET_VARIABLES_BEGIN ), offset_variables_begin_cnt  );
+debug!("{:>26} = {:3}",format!("\"{}\"",OFFSET_VARIABLES_END   ), offset_variables_end_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_HEADER_BEGIN   ), section_header_begin_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_HEADER_END     ), section_header_end_cnt      );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_MEASURES_BEGIN ), section_measures_begin_cnt  );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_MEASURES_END   ), section_measures_end_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_BEGIN   ), section_meters_begin_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_END     ), section_meters_end_cnt      );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_BEGIN   ), section_footer_begin_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_END     ), section_footer_end_cnt      );
 
     let path = Path::new("write_output.png");
 
@@ -462,7 +465,7 @@ println!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_END     ), section_foot
      match file.write_all(s_gen.as_bytes()) 
         {
         Err(why) => panic!("couldn't write to {}: {}", path.display(), why),
-        Ok(_)    => println!("successfully wrote to {}", path.display()),
+        Ok(_)    => debug!("successfully wrote to {}", path.display()),
         }
 
 Ok(true)

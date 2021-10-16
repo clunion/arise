@@ -6,10 +6,15 @@
 	],
 	"settings": {
 		"cSpell.words": [
+			"ariseconf",
 			"arisefile",
 			"nmeter",
+			"reconf",
+			"REFRESHAPP",
+			"skinfile",
 			"volver"
-		]
+		],
+		"terminal.integrated.cwd": "C:\\clu\\Devment\\Rust\\arise"
 	},
 	"extensions": {
 		"recommendations": [

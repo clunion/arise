@@ -23,7 +23,7 @@ To solve that, a generator able to compute all the coordinates would be needed. 
 
 ## Current state
 
-Most things of the development environment are set up.  
+Most things of the development environment like  
 Git and a repository on Github are set up.  
 
 ## Maintainer of arise

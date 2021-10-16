@@ -22,5 +22,10 @@ name = "arise"
 path = "src/main.rs"
 
 [dependencies]
+main_error = "0.1.2"
 clap = "2.33.3" 
+flexi_logger = { version = "0.19.4", features = ["compress"]}
+log = { version = "0.4", features = ["max_level_trace", "release_max_level_warn"] }
+yansi = "0.5"
+
 
