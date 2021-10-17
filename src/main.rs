@@ -32,7 +32,6 @@
 //!    
 
 
-
 //___ CRATES EXTERNAL: ________________________________________________________________________________________________________
 extern crate clap;
 
@@ -51,24 +50,10 @@ use clap::Arg;
 
 use crate::modules::*;                    // crate::<dirname>::*
 use crate::modules::core_logic::*;        // crate::<filename>::*
+use crate::modules::config::*;            // crate::<filename>::*
 
 //___ CONSTANTS: ______________________________________________________________________________________________________________
-pub (crate) const ARISE_FILE_EXTENSION: &str = "arise";
-pub (crate) const SKIN_FILE_EXTENSION:  &str = "ini";
-
-// Default values for configuration:
-const DEFAULT_VERBOSITY:                   u8 = 0;
-const DEFAULT_DEBUG_MODE:                 bool = false;
-const DEFAULT_TEST_MODE:                  bool = false;
-const DEFAULT_BASE_PATHPART:              &str = ".";
-const DEFAULT_RES_PATHPART:               &str = "resources";
-const DEFAULT_INP_PATHPART:               &str = "input";
-const DEFAULT_OUT_PATHPART:               &str = "output";
-const DEFAULT_SKIN_NAME:                  &str = "default";
-const DEFAULT_INSTALL_SKIN_FOLDER:        &str = "C:\\Users\\YourName\\Documents\\Rainmeter\\Skins";
-const DEFAULT_RAINMETER_EXE:              &str = "C:\\Program Files\\Rainmeter\\Rainmeter.exe";
-const DEFAULT_RAINMETER_PARAM_REFRESHAPP: &str = "!RefreshApp";                               // see: https://forum.rainmeter.net/viewtopic.php?t=11627
-const DEFAULT_RAINMETER_PARAM_MANAGE:     &str = "!Manage Skins <ConfigName> <SkinIniFile>";  
+//___ none ___
 
 //___ TYPES: __________________________________________________________________________________________________________________
 //___ none ___
@@ -80,70 +65,10 @@ const DEFAULT_RAINMETER_PARAM_MANAGE:     &str = "!Manage Skins <ConfigName> <Sk
 //___ none ___
 
 //___ STRUCTS: ________________________________________________________________________________________________________________
-#[derive(Debug, Clone)]
-pub(crate) struct AriseConfig 
-{
-    pub(crate) verbosity:                  u8,
-    pub(crate) debug:                      bool,
-    pub(crate) test:                       bool,
-    pub(crate) base_pathpart:              PathBuf,
-    pub(crate) res_pathpart:               PathBuf,
-    pub(crate) inp_pathpart:               PathBuf,
-    pub(crate) out_pathpart:               PathBuf,
-    pub(crate) skin_name:                  PathBuf,
-    pub(crate) arise_file_name:            PathBuf,
-    pub(crate) skin_file_name:             PathBuf,
-    pub(crate) install_skin_folder:        PathBuf,
-    pub(crate) rainmeter_exe:              PathBuf,
-    pub(crate) rainmeter_param_refreshapp: String,
-    pub(crate) rainmeter_param_manage:     String,
-}
+//___ none ___
 
 //___ METHODS: ________________________________________________________________________________________________________________
-//-- Arise-Config -------------------------------------------
-
-impl <'lt_ariseconf> Default for AriseConfig
-{
-/// ___________________________________________________________________________________________________________________________
-/// **`METHOD:     `**  default   
-/// **`TYPE:       `**  method of AriseConfig   
-/// ___________________________________________________________________________________________________________________________
-/// **`PARAMETER:  `** **`               `** None   
-/// **`RETURNS:    `** **`               `** None   
-/// ___________________________________________________________________________________________________________________________
-/// **`DESCRIPTION:`**   
-/// Initializes a AriseConfig struct with default values   
-/// ___________________________________________________________________________________________________________________________
-/// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
-/// :---    | :---       | :---:     | :---   
-/// 1.0     | 2021-10-13 | Clunion   | initial version   
-/// ___________________________________________________________________________________________________________________________
-/// **`TODO:       `**   
-/// *   
-/// ___________________________________________________________________________________________________________________________
-    fn default() -> Self 
-    {
-        AriseConfig 
-        {
-        verbosity:                  DEFAULT_VERBOSITY,
-        debug:                      DEFAULT_DEBUG_MODE,
-        test:                       DEFAULT_TEST_MODE,
-        base_pathpart:              PathBuf::from(DEFAULT_BASE_PATHPART),
-        res_pathpart:               PathBuf::from(DEFAULT_RES_PATHPART),
-        inp_pathpart:               PathBuf::from(DEFAULT_INP_PATHPART),
-        out_pathpart:               PathBuf::from(DEFAULT_OUT_PATHPART),
-//      arise_file_name:            [DEFAULT_BASE_PATHPART, DEFAULT_INP_PATHPART, DEFAULT_ARISE_FILE_NAME, ARISE_FILE_EXTENSION].iter().collect(),
-        skin_name:                  PathBuf::from(DEFAULT_SKIN_NAME),                                       // skin-name of the current Rainmeter-Skin to generate 
-        arise_file_name:            PathBuf::from(format!("{}.{}",DEFAULT_SKIN_NAME,ARISE_FILE_EXTENSION)), // file-name of the generator-source file (.arise)
-        skin_file_name:             PathBuf::from(format!("{}.{}",DEFAULT_SKIN_NAME,SKIN_FILE_EXTENSION)),  // file-name of the current Rainmeter-Skin (.ini) to generate 
-        install_skin_folder:        PathBuf::from(DEFAULT_INSTALL_SKIN_FOLDER),
-        rainmeter_exe:              PathBuf::from(DEFAULT_RAINMETER_EXE),
-        rainmeter_param_refreshapp:  String::from(DEFAULT_RAINMETER_PARAM_REFRESHAPP),
-        rainmeter_param_manage:      String::from(DEFAULT_RAINMETER_PARAM_MANAGE),
-        }
-    }
-}
-
+//___ none ___
 
 
 /// ___________________________________________________________________________________________________________________________

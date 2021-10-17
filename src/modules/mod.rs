@@ -40,6 +40,7 @@
 
 
 //___ DECLARATIONS OF SUBMODULES: _____________________________________________________________________________________________
+pub(crate) mod config;        // <filename>
 pub(crate) mod core_logic;    // <filename>
 pub(crate) mod arise_log;     // <filename>
 
