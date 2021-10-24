@@ -139,7 +139,7 @@ impl <'lt_ariseconf> AriseConfig
 /// **`METHOD:     `**  new   
 /// **`TYPE:       `**  method of AriseConfig   
 /// ___________________________________________________________________________________________________________________________
-/// **`PARAMETER:  `** **` <none>       `** Name of the window-config, also this is a section name in the ini-file   
+/// **`PARAMETER:  `** **` <none>       `**    
 /// **`RETURNS:    `** **` AriseConfig  `** a newly created struct   
 /// ___________________________________________________________________________________________________________________________
 /// **`DESCRIPTION:`**   
@@ -152,7 +152,8 @@ impl <'lt_ariseconf> AriseConfig
 /// **`TODO:       `**   
 /// *   
 /// ___________________________________________________________________________________________________________________________
-    fn new() -> AriseConfig
+#[allow(dead_code)]    
+fn new() -> AriseConfig
     {
         AriseConfig 
         {
@@ -165,7 +166,7 @@ impl <'lt_ariseconf> AriseConfig
             out_pathpart:               PathBuf::from(DEFAULT_OUT_PATHPART),
             skin_name:                  PathBuf::from(DEFAULT_SKIN_NAME),                                       // skin-name of the current Rainmeter-Skin to generate 
             arise_file_name:            PathBuf::from(format!("{}.{}",DEFAULT_SKIN_NAME,ARISE_FILE_EXTENSION)), // file-name of the generator-source file (.arise)
-            skin_file_name:             PathBuf::from(format!("{}.{}",DEFAULT_SKIN_NAME,SKIN_FILE_EXTENSION)),  // file-name of the current Rainmeter-Skin (.ini) to generate 
+            skin_file_name:             PathBuf::from(format!("{}.{}",DEFAULT_SKIN_NAME,SKIN_FILE_EXTENSION)),  // file-name of the Rainmeter-skin (.ini) to generate 
             install_skin_folder:        PathBuf::from(DEFAULT_INSTALL_SKIN_FOLDER),
             rainmeter_exe:              PathBuf::from(DEFAULT_RAINMETER_EXE),
             rainmeter_param_refreshapp:  String::from(DEFAULT_RAINMETER_PARAM_REFRESHAPP),

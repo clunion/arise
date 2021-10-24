@@ -5,7 +5,7 @@ license     = "MIT"
 description = "A RaInmeter (tm) Skin Evolver, a parameterized generator for rainmeter ini-files"
 authors     = ["Christian Lunau <Christian.Lunau@gmx.de>"]
               
-edition     = "2018"
+edition     = "2021"
 
 homepage    = "https://github.com/clunion/arise"
 repository  = "https://github.com/clunion/arise"

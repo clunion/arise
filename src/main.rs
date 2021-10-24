@@ -89,8 +89,7 @@ use crate::modules::config::*;            // crate::<filename>::*
 /// ___________________________________________________________________________________________________________________________
 /// **`TODO:       `**   
 ///  * define command line arguments for all configuration switches and variables    
-///  * add recognition and handling of debug mode (compile switch/definition?)   
-///  * add recognition and handling of testing mode   
+///  * add handling of testing mode   
 /// ___________________________________________________________________________________________________________________________
 
 fn main() -> Result<(), MainError>
@@ -98,7 +97,7 @@ fn main() -> Result<(), MainError>
 let mut arise_config: AriseConfig = AriseConfig::default();
 
 // Initialize flexi_logger, see documentation of Struct flexi_logger::LogSpecification:
-match Logger::try_with_env_or_str("arise=debug, arise::modules::core_logic=warn, arise::modules::arise_log=debug")
+match Logger::try_with_env_or_str("arise=debug, arise::modules::core_logic=debug, arise::modules::arise_log=debug")
             .unwrap_or_else(|e| panic!("Logger initialization failed with {:?}", e))
             .rotate(Criterion::Size(100_000), Naming::Timestamps, Cleanup::KeepLogAndCompressedFiles(4,10))
             .duplicate_to_stderr(Duplicate::Trace)
@@ -131,21 +130,21 @@ let cmd_line = clap::App::new("Arise")
                    .version("0.1")
                    .author("Clunion <Christian.Lunau@gmx.de>")
                    .about("A RaInmeter Skin Evolver")
-                   .arg(Arg::with_name("verbosity")                    // <--VERBOSITY --------------------------------
+                   .arg(Arg::with_name("verbosity")                    // <--VERBOSITY --------------------------------------------
                        .short("v")
                        .multiple(true)
                        .help("Sets the level of verbosity, more vs, more chatter."))
-                   .arg(Arg::with_name("test-mode")                    // <--TEST-MODE---------------------------------
+                   .arg(Arg::with_name("test-mode")                    // <--TEST-MODE---------------------------------------------
                        .help("Starts the program in testing mode.")
                        .short("t")
                        .long("test")
                        .takes_value(false))
-                   .arg(Arg::with_name("debug-mode")                   // <--DEBUG-MODE--------------------------------
+                   .arg(Arg::with_name("debug-mode")                   // <--DEBUG-MODE--------------------------------------------
                        .short("d")
                        .long("debug")
                        .help("Starts the program in debug mode.")
                        .takes_value(false))
-                   .arg(Arg::with_name("skin")                        // <--name of Skin (=basename of source- and target-files)--
+                   .arg(Arg::with_name("skin")                         // <--name of Skin (=basename of source- and target-files)--
                        .short("s")
                        .long("skin")
                        .value_name("SKIN")
@@ -174,43 +173,28 @@ arise_config.arise_file_name.set_extension(ARISE_FILE_EXTENSION);
 arise_config.skin_file_name   = arise_config.skin_name.clone();
 arise_config.skin_file_name.set_extension(SKIN_FILE_EXTENSION);
 
-// construct the full paths+filenames to work on:
-let mut inp_full_filename = PathBuf::from(&arise_config.base_pathpart); 
-        inp_full_filename.push(&arise_config.inp_pathpart);
-        inp_full_filename.push(&arise_config.arise_file_name);
-
-let mut out_full_filename = PathBuf::from(&arise_config.base_pathpart); 
-        out_full_filename.push(&arise_config.out_pathpart);
-        out_full_filename.push(&arise_config.skin_file_name);
-
-debug!("command line: skin-name:    {}", arise_config.skin_name.display());
-debug!("base_pathpart:              {}", arise_config.base_pathpart.display());
-debug!("res_pathpart:               {}", arise_config.res_pathpart.display());
-debug!("inp_pathpart:               {}", arise_config.inp_pathpart.display());
-debug!("out_pathpart:               {}", arise_config.out_pathpart.display());
-debug!("skin-name:                  {}", arise_config.skin_name.display());
-debug!("arise-filename:             {}", arise_config.arise_file_name.display());
-debug!("skin-filename:              {}", arise_config.skin_file_name.display());
-debug!("install_skin_folder:        {}", arise_config.install_skin_folder .display());
-debug!("rainmeter_exe:              {}", arise_config.rainmeter_exe       .display());
+debug!("command line: skin-name:    {}",   arise_config.skin_name.display());
+debug!("base_pathpart:              {}",   arise_config.base_pathpart.display());
+debug!("res_pathpart:               {}",   arise_config.res_pathpart.display());
+debug!("inp_pathpart:               {}",   arise_config.inp_pathpart.display());
+debug!("out_pathpart:               {}",   arise_config.out_pathpart.display());
+debug!("skin-name:                  {}",   arise_config.skin_name.display());
+debug!("arise-filename:             {}",   arise_config.arise_file_name.display());
+debug!("skin-filename:              {}",   arise_config.skin_file_name.display());
+debug!("install_skin_folder:        {}",   arise_config.install_skin_folder .display());
+debug!("rainmeter_exe:              {}",   arise_config.rainmeter_exe       .display());
 debug!("rainmeter_param_refreshapp: {:?}", arise_config.rainmeter_param_refreshapp);
 debug!("rainmeter_param_manage:     {:?}", arise_config.rainmeter_param_manage    );
-debug!("input-full-filename:        {}", inp_full_filename.display());
-debug!("output-full-filename:       {}", out_full_filename.display());
-
-// Check preconditions to run:
-assert!(exists_file(&inp_full_filename), "Error, input arise file not found '{}'", inp_full_filename.display());
 
 // Check directories, create them if missing:
-if !exists_dir(&arise_config.res_pathpart)  {match create_dir(&arise_config.res_pathpart) {Ok(_) => println!("created: '{}'",arise_config.res_pathpart.display()), Err(error) => panic!("couldn't create dir '{}': {}", arise_config.res_pathpart.display(), error),}; }
-if !exists_dir(&arise_config.inp_pathpart)  {match create_dir(&arise_config.inp_pathpart) {Ok(_) => println!("created: '{}'",arise_config.inp_pathpart.display()), Err(error) => panic!("couldn't create dir '{}': {}", arise_config.inp_pathpart.display(), error),}; }
-if !exists_dir(&arise_config.out_pathpart)  {match create_dir(&arise_config.out_pathpart) {Ok(_) => println!("created: '{}'",arise_config.out_pathpart.display()), Err(error) => panic!("couldn't create dir '{}': {}", arise_config.out_pathpart.display(), error),}; }
+if !exists_dir(&arise_config.res_pathpart) {match create_dir(&arise_config.res_pathpart) {Ok(_) => info!("created: '{}'",arise_config.res_pathpart.display()), Err(error) => panic!("couldn't create dir '{}': {}", arise_config.res_pathpart.display(), error),}; }
+if !exists_dir(&arise_config.inp_pathpart) {match create_dir(&arise_config.inp_pathpart) {Ok(_) => info!("created: '{}'",arise_config.inp_pathpart.display()), Err(error) => panic!("couldn't create dir '{}': {}", arise_config.inp_pathpart.display(), error),}; }
+if !exists_dir(&arise_config.out_pathpart) {match create_dir(&arise_config.out_pathpart) {Ok(_) => info!("created: '{}'",arise_config.out_pathpart.display()), Err(error) => panic!("couldn't create dir '{}': {}", arise_config.out_pathpart.display(), error),}; }
 
 // do the real work:
-match core_logic(&arise_config.res_pathpart, &inp_full_filename, &out_full_filename)
+match core_logic(&arise_config)
     {
-        Ok(stat)   => { println!("got {}",stat); Ok(()) },
-        Err(error) => { println!("Error saving config: {:?}", error); Err(error.into()) },
+        Err(error) => { error!("Error executing core-logic: {:?}", error); Err(error.into()) },
+        Ok(stat)   => { debug!("OKm got {} from logic-module.",stat);      Ok(()) },
     }
-
 }

@@ -29,14 +29,16 @@
 
 //___ DECLARATIONS OF SUBMODULES TO INCLUDE: __________________________________________________________________________________
 // mod modules;                              // <dirname>
-// mod central_core;                         // <filename>
-// mod arise;                                // <filename>
+
+use crate::modules::config::*;            // crate::<filename>::*
 
 //___ PATHS TO MODULES TO USE: ________________________________________________________________________________________________
 
 //use std::env;
 use std::io;
 use std::io::prelude::*;
+
+use std::path::PathBuf;
 
 use std::fs;
 //use std::fs::{File, OpenOptions};
@@ -47,7 +49,7 @@ use std::path::Path;
 
 // use std::cmp::Ordering;
 
-// use std::error::Error;
+use std::error::Error;
 use std::io::ErrorKind;
 
 #[allow(unused_imports)]
@@ -335,6 +337,7 @@ match file.read_to_string(&mut data)
     }
 }
 
+
 /// ___________________________________________________________________________________________________________________________
 /// **`FUNCTION:   `**  core_logic   
 /// **`TYPE:       `**  central core logic function   
@@ -351,10 +354,8 @@ match file.read_to_string(&mut data)
 /// :---    | :---       | :---:     | :---   
 /// 1.0     | 2020-01-17 | Clunion   | created, initial version   
 /// ___________________________________________________________________________________________________________________________
-pub(crate) fn core_logic(res_path_p: &Path, inp_full_filename_p: &Path, out_full_filename_p: &Path) -> Result<bool, io::Error>
+pub(crate) fn core_logic(conf_p: &AriseConfig) -> Result<bool, io::Error>
 {
-let     _bret: bool  = false;                                 // common boolean return value
-
 // counter for defined Literals, which are found:
 let mut comment_singleline_cnt      : i32 = 0;
 let mut comment_multiline_begin_cnt : i32 = 0;
@@ -382,23 +383,53 @@ let mut section_meters_end_cnt      : i32 = 0;
 let mut section_footer_begin_cnt    : i32 = 0;
 let mut section_footer_end_cnt      : i32 = 0;
 
-println!(">>> START OF: core_logic({},{},{})", res_path_p.display(), inp_full_filename_p.display(), out_full_filename_p.display());
+debug!(">>> START OF: core_logic()");
+debug!("resources:  {}", conf_p.res_pathpart.display());
+debug!("arise-file: {}", conf_p.arise_file_name.display());
+debug!("skin-file:  {}", conf_p.skin_file_name.display());
 
-let s_gen = match read_file_fully(inp_full_filename_p)
+// construct the full paths+filenames to work on:
+let mut inp_full_filename = PathBuf::from(&conf_p.base_pathpart); 
+        inp_full_filename.push(&conf_p.inp_pathpart);
+        inp_full_filename.push(&conf_p.arise_file_name);
+
+let mut out_full_filename = PathBuf::from(&conf_p.base_pathpart); 
+        out_full_filename.push(&conf_p.out_pathpart);
+        out_full_filename.push(&conf_p.skin_file_name);
+
+// Check preconditions to run:
+assert!(exists_file(&inp_full_filename), "Error, input arise file not found '{}'", inp_full_filename.display());
+
+debug!("command line: skin-name:    {}",   conf_p.skin_name.display());
+debug!("base_pathpart:              {}",   conf_p.base_pathpart.display());
+debug!("res_pathpart:               {}",   conf_p.res_pathpart.display());
+debug!("inp_pathpart:               {}",   conf_p.inp_pathpart.display());
+debug!("out_pathpart:               {}",   conf_p.out_pathpart.display());
+debug!("skin-name:                  {}",   conf_p.skin_name.display());
+debug!("arise-filename:             {}",   conf_p.arise_file_name.display());
+debug!("skin-filename:              {}",   conf_p.skin_file_name.display());
+debug!("install_skin_folder:        {}",   conf_p.install_skin_folder .display());
+debug!("rainmeter_exe:              {}",   conf_p.rainmeter_exe       .display());
+debug!("rainmeter_param_refreshapp: {:?}", conf_p.rainmeter_param_refreshapp);
+debug!("rainmeter_param_manage:     {:?}", conf_p.rainmeter_param_manage    );
+debug!("input-full-filename:        {}",   inp_full_filename.display());
+debug!("output-full-filename:       {}",   out_full_filename.display());
+
+let s_arise = match read_file_fully(&inp_full_filename)
     {
-    Ok(s_gen)    => {println!("OK, read from file {}", inp_full_filename_p.display());s_gen},
-    Err(error)   => {panic!("Read from file {} failed with {}",inp_full_filename_p.display(),error)},
+    Ok(s_arise)  => {debug!("OK,  successfully read file {}", inp_full_filename.display());s_arise},
+    Err(error)   => {panic!("Read from file {} failed with {}",inp_full_filename.display(),error)},
     };
 
-let s_gen_len      = s_gen.len();
-let s_gen_capacity = s_gen.capacity();
+let s_arise_len      = s_arise.len();
+let s_arise_capacity = s_arise.capacity();
 
-debug!("the generator-source code has len={}, capacity={}", s_gen_len,s_gen_capacity);
+debug!("the generator-source code has len={}, capacity={}", s_arise_len,s_arise_capacity);
 
-let s_gen_lines = s_gen.lines();
+let s_arise_lines = s_arise.lines();
 
 debug!("-----------------------------------------------------------");
-for s_cur_line in s_gen_lines
+for s_cur_line in s_arise_lines
     {
     if s_cur_line.contains(COMMENT_SINGLELINE     ) {comment_singleline_cnt      += 1;}
     if s_cur_line.contains(COMMENT_MULTILINE_BEGIN) {comment_multiline_begin_cnt += 1;}
@@ -426,7 +457,7 @@ for s_cur_line in s_gen_lines
     if s_cur_line.contains(SECTION_FOOTER_BEGIN    ) {section_footer_begin_cnt   += 1;}
     if s_cur_line.contains(SECTION_FOOTER_END      ) {section_footer_end_cnt     += 1;}
 
-    debug!("{}", s_cur_line)
+    trace!("{}", s_cur_line)
     }
 
 debug!("-----------------------------------------------------------");
@@ -452,22 +483,86 @@ debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_END     ), section_meters
 debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_BEGIN   ), section_footer_begin_cnt    );
 debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_END     ), section_footer_end_cnt      );
 
-    let path = Path::new("write_output.png");
 
-    // Open a file in write-only mode, returns `io::Result<File>`
-    let mut file = match File::create(&path) 
-        {
-        Err(why) => panic!("couldn't create {}: {}", path.display(), why),
-        Ok(file) => file,
-        };
+let s_skin =  build_skin_header(&s_arise).unwrap_or_else(fail)
+           + &build_skin_body  (&s_arise).unwrap_or_else(fail)
+           + &build_skin_footer(&s_arise).unwrap_or_else(fail);
 
-    // Write the `LOREM_IPSUM` string to `file`, returns `io::Result<()>`
-     match file.write_all(s_gen.as_bytes()) 
-        {
-        Err(why) => panic!("couldn't write to {}: {}", path.display(), why),
-        Ok(_)    => debug!("successfully wrote to {}", path.display()),
-        }
+// Open a file in write-only mode, returns `io::Result<File>`
+let mut file = match File::create(&out_full_filename) 
+    {
+    Err(why) => panic!("couldn't create {}: {}", out_full_filename.display(), why),
+    Ok(file) => {debug!("ok, created {}", out_full_filename.display()); file}
+    };
 
-Ok(true)
-// file_handle1 goes out of scope, and the new_file1 file gets closed.
+// TESTING: Write the full contents of gen-buffer to output-skin-file, return io::Result<()> if successful
+ match file.write_all(s_skin.as_bytes()) 
+    {
+    Err(why) => {error!("couldn't write to {}: {}", out_full_filename.display(), why); Err(why)}
+    Ok(_)    => {debug!("successfully wrote to {}", out_full_filename.display()); Ok(true) }
+    }
+
+// file_handle1 goes out of scope and the new_file1 file gets closed.
+}
+
+
+fn build_metainfo(arise_p: &str) -> Result<String, Box<dyn Error>>
+{
+let mut metainfo : String = "Metainfo-Text\n".to_owned();
+
+Ok(metainfo)
+}
+
+fn build_skin_header(arise_p: &str) -> Result<String, Box<dyn Error>>
+{
+let mut header : String = 
+  "; --- Skin Header-Start ---\n".to_owned()
++ "[Rainmeter]\n"
++ "Update=10000\n"
++ "\n"
++ "[Metadata]\n"
++ "Name=AriseWorld\n"
++ "Author=clunion\n"
++ "Information=Shows a \"Hello, World!\"-kind text display\n"
++ "Version=0.1\n"
++ "License=Creative Commons Attribution - Non - Commercial - Share Alike 3.0\n"
++ "\n"
++ "; --- Skin Header-End -----\n"
++ "\n";
+
+Ok(header)
+}
+
+fn build_skin_body(arise_p: &str) -> Result<String, Box<dyn Error>>
+{
+let mut body : String = 
+  "; --- Skin Body-Start ---\n".to_owned()
++ "[SimpleMeter]\n"
++ "Meter=String\n"
++ "Text=\" Arise, World!\"\n"
++ "AntiAlias=1\n"
++ "FontSize=40\n"
++ "FontFace=SegoeUI\n"
++ "FontColor=200,220,255\n"
++ "SolidColor=64,64,64,128,1\n"
++ "\n"
++ "; --- Skin Body-End -----\n"
++ "\n";
+
+Ok(body)
+}
+
+fn build_skin_footer(arise_p: &str) -> Result<String, Box<dyn Error>>
+{
+let mut footer : String = 
+  "; --- Skin Footer-Start ---\n".to_owned()
++ "; --- Skin Footer-End -----\n"
++ "\n";
+
+Ok(footer)
+}
+
+fn fail(err: Box<dyn Error>) -> String {
+    error!("Error: something failed, info: {}", err);
+    std::process::exit(1)
 }

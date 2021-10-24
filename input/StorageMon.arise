@@ -12,8 +12,8 @@ This is a rainmeter skin generator definition file (*.rm_skin_gen) for use with 
 The generator definition has 5 parts:
 	1. the generator control section
 	2. header   (copied to the begin of the skin definition (<skin-name>.ini) as a single instance)
-	3. measures (gest multiplied in the skin definition)
-	4. meters   (gest multiplied in the skin definition)
+	3. measures (gets multiplied in the skin definition)
+	4. meters   (gets multiplied in the skin definition)
 	5. footer   (copied to the end of the skin definition as a single instance)
 */
 
