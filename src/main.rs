@@ -39,7 +39,6 @@ extern crate clap;
 mod modules;                              // <dirname> (necessary for the explicit uses below...)
 
 //___ PATHS TO MODULES TO USE: ________________________________________________________________________________________________
-//use std::env;
 use main_error::MainError;
 use std::path::PathBuf;
 
@@ -195,6 +194,6 @@ if !exists_dir(&arise_config.out_pathpart) {match create_dir(&arise_config.out_p
 match core_logic(&arise_config)
     {
         Err(error) => { error!("Error executing core-logic: {:?}", error); Err(error.into()) },
-        Ok(stat)   => { debug!("OKm got {} from logic-module.",stat);      Ok(()) },
+        Ok(stat)   => { debug!("OK, got {} from logic-module.",stat);      Ok(()) },
     }
 }

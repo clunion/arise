@@ -93,10 +93,97 @@ const SECTION_FOOTER_END      : &str = "<footer end>";
 //___ none ___
 
 //___ STRUCTS: ________________________________________________________________________________________________________________
-//___ none ___
+#[derive(Debug, Clone)]
+struct AriseBucket   
+{
+// counter for defined Literals, which are found:
+    comment_singleline_cnt      : i32,
+    comment_multiline_begin_cnt : i32,
+    comment_multiline_end_cnt   : i32,
+    
+    operator_assign_cnt         : i32,
+    operator_plus_cnt           : i32,
+    operator_minus_cnt          : i32,
+    
+    key_name_begin_cnt          : i32,
+    key_name_end_cnt            : i32,
+    
+    multiplier_list_begin_cnt   : i32,
+    multiplier_list_end_cnt     : i32,
+    
+    offset_variables_begin_cnt  : i32,
+    offset_variables_end_cnt    : i32,
+    
+    section_header_begin_cnt    : i32,
+    section_header_end_cnt      : i32,
+    section_measures_begin_cnt  : i32,
+    section_measures_end_cnt    : i32,
+    section_meters_begin_cnt    : i32,
+    section_meters_end_cnt      : i32,
+    section_footer_begin_cnt    : i32,
+    section_footer_end_cnt      : i32,
+    arise_in: String,  // will be shortened from the head      by each section-function (empty at end)
+    skin_out: String,  // will get newly evolved code appended by each section-function (empty at start)
+}
 
 //___ METHODS: ________________________________________________________________________________________________________________
-//___ none ___
+
+impl  AriseBucket
+{
+/// ___________________________________________________________________________________________________________________________
+/// **`METHOD:     `**  new   
+/// **`TYPE:       `**  method of AriseBucket   
+/// ___________________________________________________________________________________________________________________________
+/// **`PARAMETER:  `** **` <none>       `**    
+/// **`RETURNS:    `** **` AriseBucket  `** a newly created struct   
+/// ___________________________________________________________________________________________________________________________
+/// **`DESCRIPTION:`**   
+/// Create an AriseBucket struct with default values (which are empty at first, thus None)   
+/// ___________________________________________________________________________________________________________________________
+/// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
+/// :---    | :---       | :---:     | :---   
+/// 1.0     | 2021-11-03 | Clunion   | initial version   
+/// ___________________________________________________________________________________________________________________________
+/// **`TODO:       `**   
+/// *   
+/// ___________________________________________________________________________________________________________________________
+#[allow(dead_code)]    
+fn new() -> AriseBucket
+    {
+        AriseBucket
+        {
+        // counter for defined Literals when found:
+        comment_singleline_cnt     : 0,
+        comment_multiline_begin_cnt: 0,
+        comment_multiline_end_cnt  : 0,
+
+        operator_assign_cnt        : 0,
+        operator_plus_cnt          : 0,
+        operator_minus_cnt         : 0,
+
+        key_name_begin_cnt         : 0,
+        key_name_end_cnt           : 0,
+
+        multiplier_list_begin_cnt  : 0,
+        multiplier_list_end_cnt    : 0,
+
+        offset_variables_begin_cnt : 0,
+        offset_variables_end_cnt   : 0,
+
+        section_header_begin_cnt   : 0,
+        section_header_end_cnt     : 0,
+        section_measures_begin_cnt : 0,
+        section_measures_end_cnt   : 0,
+        section_meters_begin_cnt   : 0,
+        section_meters_end_cnt     : 0,
+        section_footer_begin_cnt   : 0,
+        section_footer_end_cnt     : 0,
+        arise_in: "uninitialized".to_string(), // ugly, todo: replace with Option (?)
+        skin_out: "uninitialized".to_string(), // ugly, todo: replace with Option (?)
+        }
+    }
+
+} // End of impl: AriseBucket
 
 
 
@@ -342,51 +429,23 @@ match file.read_to_string(&mut data)
 /// **`FUNCTION:   `**  core_logic   
 /// **`TYPE:       `**  central core logic function   
 /// ___________________________________________________________________________________________________________________________
-/// **`PARAMETER:  `** **` file_path_p    `** - full path and filename of the file to be read   
+/// **`PARAMETER:  `** **` conf_p         `** - arise-config to be processed   
 /// **`RETURNS:    `** **` Result -->     `** OK(status flag: true = successful, false = failed)   
 /// **`            `** **`     or -->     `** Error   
 /// ___________________________________________________________________________________________________________________________
 /// **`DESCRIPTION:`**   
-/// Reads the whole file with the given file_name into a String.   
+/// Does the business logic of arise, based on the provided configuration struct.   
 /// The File has to exist, otherwise an error is returned.   
 /// ___________________________________________________________________________________________________________________________
 /// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
 /// :---    | :---       | :---:     | :---   
 /// 1.0     | 2020-01-17 | Clunion   | created, initial version   
 /// ___________________________________________________________________________________________________________________________
-pub(crate) fn core_logic(conf_p: &AriseConfig) -> Result<bool, io::Error>
+//-> Result<AriseBucket, Box<dyn Error>>
+//pub(crate) fn core_logic(conf_p: &AriseConfig) -> Result<bool, io::Error>
+pub(crate) fn core_logic(conf_p: &AriseConfig) -> Result<bool, Box<dyn Error>>
 {
-// counter for defined Literals, which are found:
-let mut comment_singleline_cnt      : i32 = 0;
-let mut comment_multiline_begin_cnt : i32 = 0;
-let mut comment_multiline_end_cnt   : i32 = 0;
-
-let mut operator_assign_cnt         : i32 = 0;
-let mut operator_plus_cnt           : i32 = 0;
-let mut operator_minus_cnt          : i32 = 0;
-
-let mut key_name_begin_cnt          : i32 = 0;
-let mut key_name_end_cnt            : i32 = 0;
-
-let mut multiplier_list_begin_cnt   : i32 = 0;
-let mut multiplier_list_end_cnt     : i32 = 0;
-
-let mut offset_variables_begin_cnt  : i32 = 0;
-let mut offset_variables_end_cnt    : i32 = 0;
-
-let mut section_header_begin_cnt    : i32 = 0;
-let mut section_header_end_cnt      : i32 = 0;
-let mut section_measures_begin_cnt  : i32 = 0;
-let mut section_measures_end_cnt    : i32 = 0;
-let mut section_meters_begin_cnt    : i32 = 0;
-let mut section_meters_end_cnt      : i32 = 0;
-let mut section_footer_begin_cnt    : i32 = 0;
-let mut section_footer_end_cnt      : i32 = 0;
-
-debug!(">>> START OF: core_logic()");
-debug!("resources:  {}", conf_p.res_pathpart.display());
-debug!("arise-file: {}", conf_p.arise_file_name.display());
-debug!("skin-file:  {}", conf_p.skin_file_name.display());
+let mut arise : AriseBucket = AriseBucket::new();
 
 // construct the full paths+filenames to work on:
 let mut inp_full_filename = PathBuf::from(&conf_p.base_pathpart); 
@@ -397,108 +456,91 @@ let mut out_full_filename = PathBuf::from(&conf_p.base_pathpart);
         out_full_filename.push(&conf_p.out_pathpart);
         out_full_filename.push(&conf_p.skin_file_name);
 
-// Check preconditions to run:
-assert!(exists_file(&inp_full_filename), "Error, input arise file not found '{}'", inp_full_filename.display());
-
-debug!("command line: skin-name:    {}",   conf_p.skin_name.display());
+debug!("--- Config-Values: ---");
+debug!("skin-name (command line):   {}",   conf_p.skin_name.display());
 debug!("base_pathpart:              {}",   conf_p.base_pathpart.display());
 debug!("res_pathpart:               {}",   conf_p.res_pathpart.display());
 debug!("inp_pathpart:               {}",   conf_p.inp_pathpart.display());
 debug!("out_pathpart:               {}",   conf_p.out_pathpart.display());
-debug!("skin-name:                  {}",   conf_p.skin_name.display());
 debug!("arise-filename:             {}",   conf_p.arise_file_name.display());
 debug!("skin-filename:              {}",   conf_p.skin_file_name.display());
-debug!("install_skin_folder:        {}",   conf_p.install_skin_folder .display());
-debug!("rainmeter_exe:              {}",   conf_p.rainmeter_exe       .display());
+debug!("install_skin_folder:        {}",   conf_p.install_skin_folder.display());
+debug!("rainmeter_exe:              {}",   conf_p.rainmeter_exe.display());
 debug!("rainmeter_param_refreshapp: {:?}", conf_p.rainmeter_param_refreshapp);
 debug!("rainmeter_param_manage:     {:?}", conf_p.rainmeter_param_manage    );
 debug!("input-full-filename:        {}",   inp_full_filename.display());
 debug!("output-full-filename:       {}",   out_full_filename.display());
 
-let s_arise = match read_file_fully(&inp_full_filename)
+
+// Check preconditions to run:
+assert!(exists_file(&inp_full_filename), "Error, input arise file not found '{}'", inp_full_filename.display());
+
+arise.arise_in = match read_file_fully(&inp_full_filename)
     {
-    Ok(s_arise)  => {debug!("OK,  successfully read file {}", inp_full_filename.display());s_arise},
+    Ok(s_arise)  => {debug!("OK, successfully read file {}",   inp_full_filename.display());s_arise},
     Err(error)   => {panic!("Read from file {} failed with {}",inp_full_filename.display(),error)},
     };
 
-let s_arise_len      = s_arise.len();
-let s_arise_capacity = s_arise.capacity();
-
-debug!("the generator-source code has len={}, capacity={}", s_arise_len,s_arise_capacity);
-
-let s_arise_lines = s_arise.lines();
-
-debug!("-----------------------------------------------------------");
-for s_cur_line in s_arise_lines
+match build_metainfo(arise)
     {
-    if s_cur_line.contains(COMMENT_SINGLELINE     ) {comment_singleline_cnt      += 1;}
-    if s_cur_line.contains(COMMENT_MULTILINE_BEGIN) {comment_multiline_begin_cnt += 1;}
-    if s_cur_line.contains(COMMENT_MULTILINE_END  ) {comment_multiline_end_cnt   += 1;}
+    Err(why)           => {error!("couldn't evolve skin metadata: {}", why); return Err(why)}
+    Ok(arise_metainfo) => {debug!("ok, length of modified arise-text is now: {:4}", arise_metainfo.skin_out.len());  arise = arise_metainfo }  // be careful here, it's tricky...
+    };
 
-    if s_cur_line.contains(OPERATOR_ASSIGN         ) {operator_assign_cnt        += 1;}
-    if s_cur_line.contains(OPERATOR_PLUS           ) {operator_plus_cnt          += 1;}
-    if s_cur_line.contains(OPERATOR_MINUS          ) {operator_minus_cnt         += 1;}
+match build_skin_header(arise)
+    {
+    Err(why)           => {error!("couldn't evolve skin header: {}", why); return Err(why)}
+    Ok(arise_header)   => {debug!("ok, length of modified arise-text is now: {:4}", arise_header.skin_out.len());    arise = arise_header }  // be careful here, it's tricky...
+    };
 
-    if s_cur_line.contains(KEY_NAME_BEGIN          ) {key_name_begin_cnt         += 1;}
-    if s_cur_line.contains(KEY_NAME_END            ) {key_name_end_cnt           += 1;}
+    match build_skin_body(arise)
+    {
+    Err(why)           => {error!("couldn't evolve skin body: {}", why); return Err(why)}
+    Ok(arise_body)     => {debug!("ok, length of modified arise-text is now: {:4}", arise_body.skin_out.len());      arise = arise_body }  // be careful here, it's tricky...
+    };
 
-    if s_cur_line.contains(MULTIPLIER_LIST_BEGIN   ) {multiplier_list_begin_cnt  += 1;}
-    if s_cur_line.contains(MULTIPLIER_LIST_END     ) {multiplier_list_end_cnt    += 1;}
-
-    if s_cur_line.contains(OFFSET_VARIABLES_BEGIN  ) {offset_variables_begin_cnt += 1;}
-    if s_cur_line.contains(OFFSET_VARIABLES_END    ) {offset_variables_end_cnt   += 1;}
-
-    if s_cur_line.contains(SECTION_HEADER_BEGIN    ) {section_header_begin_cnt   += 1;}
-    if s_cur_line.contains(SECTION_HEADER_END      ) {section_header_end_cnt     += 1;}
-    if s_cur_line.contains(SECTION_MEASURES_BEGIN  ) {section_measures_begin_cnt += 1;}
-    if s_cur_line.contains(SECTION_MEASURES_END    ) {section_measures_end_cnt   += 1;}
-    if s_cur_line.contains(SECTION_METERS_BEGIN    ) {section_meters_begin_cnt   += 1;}
-    if s_cur_line.contains(SECTION_METERS_END      ) {section_meters_end_cnt     += 1;}
-    if s_cur_line.contains(SECTION_FOOTER_BEGIN    ) {section_footer_begin_cnt   += 1;}
-    if s_cur_line.contains(SECTION_FOOTER_END      ) {section_footer_end_cnt     += 1;}
-
-    trace!("{}", s_cur_line)
-    }
+match build_skin_footer(arise)
+    {
+    Err(why)           => {error!("couldn't evolve skin footer: {}", why); return Err(why)}
+    Ok(arise_footer)   => {debug!("ok, length of modified arise-text is now: {:4}", arise_footer.skin_out.len());    arise = arise_footer }  // be careful here, it's tricky...
+    };
 
 debug!("-----------------------------------------------------------");
-debug!("Found Literals, Operators and Keys with counts of:");
-debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_SINGLELINE     ), comment_singleline_cnt      );
-debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_MULTILINE_BEGIN), comment_multiline_begin_cnt );
-debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_MULTILINE_END  ), comment_multiline_end_cnt   );
-debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_ASSIGN        ), operator_assign_cnt         );
-debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_PLUS          ), operator_plus_cnt           );
-debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_MINUS         ), operator_minus_cnt          );
-debug!("{:>26} = {:3}",format!("\"{}\"",KEY_NAME_BEGIN         ), key_name_begin_cnt          );
-debug!("{:>26} = {:3}",format!("\"{}\"",KEY_NAME_END           ), key_name_end_cnt            );
-debug!("{:>26} = {:3}",format!("\"{}\"",MULTIPLIER_LIST_BEGIN  ), multiplier_list_begin_cnt   );
-debug!("{:>26} = {:3}",format!("\"{}\"",MULTIPLIER_LIST_END    ), multiplier_list_end_cnt     );
-debug!("{:>26} = {:3}",format!("\"{}\"",OFFSET_VARIABLES_BEGIN ), offset_variables_begin_cnt  );
-debug!("{:>26} = {:3}",format!("\"{}\"",OFFSET_VARIABLES_END   ), offset_variables_end_cnt    );
-debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_HEADER_BEGIN   ), section_header_begin_cnt    );
-debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_HEADER_END     ), section_header_end_cnt      );
-debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_MEASURES_BEGIN ), section_measures_begin_cnt  );
-debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_MEASURES_END   ), section_measures_end_cnt    );
-debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_BEGIN   ), section_meters_begin_cnt    );
-debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_END     ), section_meters_end_cnt      );
-debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_BEGIN   ), section_footer_begin_cnt    );
-debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_END     ), section_footer_end_cnt      );
+debug!("Amounts of Literals, Operators and Keys found:");
+debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_SINGLELINE     ), arise.comment_singleline_cnt      );
+debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_MULTILINE_BEGIN), arise.comment_multiline_begin_cnt );
+debug!("{:>26} = {:3}",format!("\"{}\"",COMMENT_MULTILINE_END  ), arise.comment_multiline_end_cnt   );
+debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_ASSIGN        ), arise.operator_assign_cnt         );
+debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_PLUS          ), arise.operator_plus_cnt           );
+debug!("{:>26} = {:3}",format!("\"{}\"",OPERATOR_MINUS         ), arise.operator_minus_cnt          );
+debug!("{:>26} = {:3}",format!("\"{}\"",KEY_NAME_BEGIN         ), arise.key_name_begin_cnt          );
+debug!("{:>26} = {:3}",format!("\"{}\"",KEY_NAME_END           ), arise.key_name_end_cnt            );
+debug!("{:>26} = {:3}",format!("\"{}\"",MULTIPLIER_LIST_BEGIN  ), arise.multiplier_list_begin_cnt   );
+debug!("{:>26} = {:3}",format!("\"{}\"",MULTIPLIER_LIST_END    ), arise.multiplier_list_end_cnt     );
+debug!("{:>26} = {:3}",format!("\"{}\"",OFFSET_VARIABLES_BEGIN ), arise.offset_variables_begin_cnt  );
+debug!("{:>26} = {:3}",format!("\"{}\"",OFFSET_VARIABLES_END   ), arise.offset_variables_end_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_HEADER_BEGIN   ), arise.section_header_begin_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_HEADER_END     ), arise.section_header_end_cnt      );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_MEASURES_BEGIN ), arise.section_measures_begin_cnt  );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_MEASURES_END   ), arise.section_measures_end_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_BEGIN   ), arise.section_meters_begin_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_END     ), arise.section_meters_end_cnt      );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_BEGIN   ), arise.section_footer_begin_cnt    );
+debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_END     ), arise.section_footer_end_cnt      );
+    
+    
 
-
-let s_skin =  build_skin_header(&s_arise).unwrap_or_else(fail)
-           + &build_skin_body  (&s_arise).unwrap_or_else(fail)
-           + &build_skin_footer(&s_arise).unwrap_or_else(fail);
-
-// Open a file in write-only mode, returns `io::Result<File>`
+    // Open a file in write-only mode, returns `io::Result<File>`
 let mut file = match File::create(&out_full_filename) 
     {
-    Err(why) => panic!("couldn't create {}: {}", out_full_filename.display(), why),
-    Ok(file) => {debug!("ok, created {}", out_full_filename.display()); file}
+    Err(why) => {error!("couldn't create {}: {}", out_full_filename.display(), why); return Err(why.into())},
+    Ok(file) => {debug!("ok, created {}"        , out_full_filename.display()); file}
     };
 
 // TESTING: Write the full contents of gen-buffer to output-skin-file, return io::Result<()> if successful
- match file.write_all(s_skin.as_bytes()) 
+ match file.write_all(arise.skin_out.as_bytes()) 
     {
-    Err(why) => {error!("couldn't write to {}: {}", out_full_filename.display(), why); Err(why)}
+    Err(why) => {error!("couldn't write to {}: {}", out_full_filename.display(), why); return Err(why.into())}
     Ok(_)    => {debug!("successfully wrote to {}", out_full_filename.display()); Ok(true) }
     }
 
@@ -506,16 +548,49 @@ let mut file = match File::create(&out_full_filename)
 }
 
 
-fn build_metainfo(arise_p: &str) -> Result<String, Box<dyn Error>>
+fn build_metainfo(mut arise_p: AriseBucket) -> Result<AriseBucket, Box<dyn Error>>
 {
-let mut metainfo : String = "Metainfo-Text\n".to_owned();
+let metainfo : String = "; -- Metainfo-Text --\n".to_owned();
 
-Ok(metainfo)
+let s_arise_lines = arise_p.arise_in.lines();
+let mut line_num = 0;
+
+trace!("-----------------------------------------------------------");
+for s_cur_line in s_arise_lines
+    {                                                  
+    line_num = line_num + 1;    
+    if s_cur_line.contains(COMMENT_SINGLELINE      ) {arise_p.comment_singleline_cnt     += 1; println!("[{:4}] found COMMENT_SINGLELINE     ", line_num);}
+    if s_cur_line.contains(COMMENT_MULTILINE_BEGIN ) {arise_p.comment_multiline_begin_cnt+= 1; println!("[{:4}] found COMMENT_MULTILINE_BEGIN", line_num);}
+    if s_cur_line.contains(COMMENT_MULTILINE_END   ) {arise_p.comment_multiline_end_cnt  += 1; println!("[{:4}] found COMMENT_MULTILINE_END  ", line_num);}
+    if s_cur_line.contains(OPERATOR_ASSIGN         ) {arise_p.operator_assign_cnt        += 1; println!("[{:4}] found OPERATOR_ASSIGN        ", line_num);}
+    if s_cur_line.contains(OPERATOR_PLUS           ) {arise_p.operator_plus_cnt          += 1; println!("[{:4}] found OPERATOR_PLUS          ", line_num);}
+    if s_cur_line.contains(OPERATOR_MINUS          ) {arise_p.operator_minus_cnt         += 1; println!("[{:4}] found OPERATOR_MINUS         ", line_num);}
+    if s_cur_line.contains(KEY_NAME_BEGIN          ) {arise_p.key_name_begin_cnt         += 1; println!("[{:4}] found KEY_NAME_BEGIN         ", line_num);}
+    if s_cur_line.contains(KEY_NAME_END            ) {arise_p.key_name_end_cnt           += 1; println!("[{:4}] found KEY_NAME_END           ", line_num);}
+    if s_cur_line.contains(MULTIPLIER_LIST_BEGIN   ) {arise_p.multiplier_list_begin_cnt  += 1; println!("[{:4}] found MULTIPLIER_LIST_BEGIN  ", line_num);}
+    if s_cur_line.contains(MULTIPLIER_LIST_END     ) {arise_p.multiplier_list_end_cnt    += 1; println!("[{:4}] found MULTIPLIER_LIST_END    ", line_num);}
+    if s_cur_line.contains(OFFSET_VARIABLES_BEGIN  ) {arise_p.offset_variables_begin_cnt += 1; println!("[{:4}] found OFFSET_VARIABLES_BEGIN ", line_num);}
+    if s_cur_line.contains(OFFSET_VARIABLES_END    ) {arise_p.offset_variables_end_cnt   += 1; println!("[{:4}] found OFFSET_VARIABLES_END   ", line_num);}
+    if s_cur_line.contains(SECTION_HEADER_BEGIN    ) {arise_p.section_header_begin_cnt   += 1; println!("[{:4}] found SECTION_HEADER_BEGIN   ", line_num);}
+    if s_cur_line.contains(SECTION_HEADER_END      ) {arise_p.section_header_end_cnt     += 1; println!("[{:4}] found SECTION_HEADER_END     ", line_num);}
+    if s_cur_line.contains(SECTION_MEASURES_BEGIN  ) {arise_p.section_measures_begin_cnt += 1; println!("[{:4}] found SECTION_MEASURES_BEGIN ", line_num);}
+    if s_cur_line.contains(SECTION_MEASURES_END    ) {arise_p.section_measures_end_cnt   += 1; println!("[{:4}] found SECTION_MEASURES_END   ", line_num);}
+    if s_cur_line.contains(SECTION_METERS_BEGIN    ) {arise_p.section_meters_begin_cnt   += 1; println!("[{:4}] found SECTION_METERS_BEGIN   ", line_num);}
+    if s_cur_line.contains(SECTION_METERS_END      ) {arise_p.section_meters_end_cnt     += 1; println!("[{:4}] found SECTION_METERS_END     ", line_num);}
+    if s_cur_line.contains(SECTION_FOOTER_BEGIN    ) {arise_p.section_footer_begin_cnt   += 1; println!("[{:4}] found SECTION_FOOTER_BEGIN   ", line_num);}
+    if s_cur_line.contains(SECTION_FOOTER_END      ) {arise_p.section_footer_end_cnt     += 1; println!("[{:4}] found SECTION_FOOTER_END     ", line_num);}
+
+    trace!("analyzing line: {}", s_cur_line);
+    }
+
+arise_p.skin_out = metainfo;
+
+Ok(arise_p)
 }
 
-fn build_skin_header(arise_p: &str) -> Result<String, Box<dyn Error>>
+fn build_skin_header(mut arise_p: AriseBucket) -> Result<AriseBucket, Box<dyn Error>>
 {
-let mut header : String = 
+let header : String = 
   "; --- Skin Header-Start ---\n".to_owned()
 + "[Rainmeter]\n"
 + "Update=10000\n"
@@ -526,16 +601,17 @@ let mut header : String =
 + "Information=Shows a \"Hello, World!\"-kind text display\n"
 + "Version=0.1\n"
 + "License=Creative Commons Attribution - Non - Commercial - Share Alike 3.0\n"
-+ "\n"
 + "; --- Skin Header-End -----\n"
 + "\n";
 
-Ok(header)
+arise_p.skin_out = format!("{}\n{}", arise_p.skin_out, header);
+
+Ok(arise_p)
 }
 
-fn build_skin_body(arise_p: &str) -> Result<String, Box<dyn Error>>
+fn build_skin_body(mut arise_p: AriseBucket) -> Result<AriseBucket, Box<dyn Error>>
 {
-let mut body : String = 
+let body : String = 
   "; --- Skin Body-Start ---\n".to_owned()
 + "[SimpleMeter]\n"
 + "Meter=String\n"
@@ -545,24 +621,28 @@ let mut body : String =
 + "FontFace=SegoeUI\n"
 + "FontColor=200,220,255\n"
 + "SolidColor=64,64,64,128,1\n"
-+ "\n"
 + "; --- Skin Body-End -----\n"
 + "\n";
 
-Ok(body)
+arise_p.skin_out = format!("{}\n{}", arise_p.skin_out, body);
+
+Ok(arise_p)
 }
 
-fn build_skin_footer(arise_p: &str) -> Result<String, Box<dyn Error>>
+fn build_skin_footer(mut arise_p: AriseBucket) -> Result<AriseBucket, Box<dyn Error>>
 {
-let mut footer : String = 
+let footer : String = 
   "; --- Skin Footer-Start ---\n".to_owned()
 + "; --- Skin Footer-End -----\n"
 + "\n";
 
-Ok(footer)
+arise_p.skin_out = format!("{}\n{}", arise_p.skin_out, footer);
+
+Ok(arise_p)
 }
 
-fn fail(err: Box<dyn Error>) -> String {
-    error!("Error: something failed, info: {}", err);
-    std::process::exit(1)
-}
+
+// fn fail(err: Box<dyn Error>) -> String {
+//     error!("Error: something failed, info: {}", err);
+//     std::process::exit(1)
+// }
