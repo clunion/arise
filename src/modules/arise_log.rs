@@ -93,15 +93,13 @@ match pieces.next()
 /// **`DESCRIPTION:`**   
 /// logline-formatter that produces log lines with timestamp and file location, like
 /// <br>
-/// ```[15:25:01  INFO       file.rs[ 26] This is an info message```
+/// ```[15:25:01  INFO       file.rs[  26] This is an info message```
 /// <br>
 /// ___________________________________________________________________________________________________________________________
 /// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
 /// :---    | :---       | :---:     | :---   
 /// 0.1     | 2020-07-08 | Clunion   | initial version, based on flexi_logger::colored_opt_format   
-/// ___________________________________________________________________________________________________________________________
-/// **`TODO:       `**   
-/// * move the definition of the styles to a one-time initializer or change into static or a macro...   
+/// 0.2     | 2021-11-06 | Clunion   | umpf, crate 'chrono' got dropped, thus flexi_logger switched to std::time, which has no format for times.    
 /// ___________________________________________________________________________________________________________________________
 pub(crate) fn console_line_format( w: &mut dyn std::io::Write, now: &mut DeferredNow, record: &Record, ) -> Result<(), std::io::Error> 
 {
@@ -125,7 +123,7 @@ match level
 
 write!( w, 
         "{} {:5}{:>18}[{:4}] {}",
-        now.now().format("%H:%M:%S"),
+        now.now().to_string().split('.').next().unwrap_or("time unknown"), //.fomat("%H:%M:%S"),
         arise_style.paint(record.level()),
         basename(record.file().unwrap_or("<unnamed>")),
         record.line().unwrap_or(0),
@@ -146,24 +144,21 @@ write!( w,
 /// **`DESCRIPTION:`**   
 /// A logline-formatter that produces log lines like
 /// <br>
-/// ```[2016-01-13 15:25:01.640870 +01:00]  INFO [ src/foo/bar.rs[26] This is an info message```
+/// ```[2016-01-13 15:25:01.640870]  INFO  src/foo/bar.rs[  26] This is an info message```
 /// <br>
 /// i.e. with timestamp and file location.
 /// ___________________________________________________________________________________________________________________________
 /// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
 /// :---    | :---       | :---:     | :---   
 /// 0.1     | 2020-07-08 | Clunion   | initial version, based on flexi_logger::detailed_format   
-/// ___________________________________________________________________________________________________________________________
-/// **`TODO:       `**   
-/// * nothing   
+/// 0.2     | 2021-11-06 | Clunion   | crate 'chrono' got dropped, thus flexi_logger switched to std::time, which has no format for times.    
 /// ___________________________________________________________________________________________________________________________
 pub(crate) fn file_line_format( w: &mut dyn std::io::Write, now: &mut DeferredNow, record: &Record, ) -> Result<(), std::io::Error> 
 {
 write!( w,
-        "{} {:5}:{:>32}[{:4}]: {}",
-        now.now().format("%Y-%m-%d %H:%M:%S%.6f %:z"),
+        "{:28}{:5}{:>32}[{:4}]: {}",
+        now.now().to_string().split('+').next().unwrap_or("time unknown"), //.fmt("%Y-%m-%d %H:%M:%S%.6f %:z"),
         record.level(),
- //     record.module_path().unwrap_or("<unnamed>"),
         record.file().unwrap_or("<unnamed>"),
         record.line().unwrap_or(0),
         &record.args()

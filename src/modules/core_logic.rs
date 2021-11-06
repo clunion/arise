@@ -1,4 +1,5 @@
 #![deny(clippy::all)]
+//#![deny(clippy::pedantic)]
 #![forbid(unsafe_code)]
 #![allow(clippy::suspicious_else_formatting)]
 #![allow(clippy::collapsible_if)]
@@ -476,34 +477,41 @@ debug!("output-full-filename:       {}",   out_full_filename.display());
 assert!(exists_file(&inp_full_filename), "Error, input arise file not found '{}'", inp_full_filename.display());
 
 arise.arise_in = match read_file_fully(&inp_full_filename)
-    {
-    Ok(s_arise)  => {debug!("OK, successfully read file {}",   inp_full_filename.display());s_arise},
-    Err(error)   => {panic!("Read from file {} failed with {}",inp_full_filename.display(),error)},
-    };
+{
+    Err(why)    => {error!("Read file {} failed with {}", inp_full_filename.display(),why); return Err(why.into())},
+    Ok(s_arise) => {debug!("Read file {} OK."           , inp_full_filename.display()); s_arise},
+};
+
+debug!("-----------------------------------------------------------");
 
 match build_metainfo(arise)
-    {
+{
     Err(why)           => {error!("couldn't evolve skin metadata: {}", why); return Err(why)}
-    Ok(arise_metainfo) => {debug!("ok, length of modified arise-text is now: {:4}", arise_metainfo.skin_out.len());  arise = arise_metainfo }  // be careful here, it's tricky...
-    };
+    Ok(arise_metainfo) => { arise = arise_metainfo }  // be careful here, it's tricky...
+};
+debug!("ok, lengths now: arise-in {:4}, skin-out {:4}", arise.arise_in.len(), arise.skin_out.len());
 
 match build_skin_header(arise)
-    {
+{
     Err(why)           => {error!("couldn't evolve skin header: {}", why); return Err(why)}
-    Ok(arise_header)   => {debug!("ok, length of modified arise-text is now: {:4}", arise_header.skin_out.len());    arise = arise_header }  // be careful here, it's tricky...
-    };
+    Ok(arise_header)   => { arise = arise_header }  // be careful here, it's tricky...
+};
+debug!("ok, lengths now: arise-in {:4}, skin-out {:4}", arise.arise_in.len(), arise.skin_out.len());
 
-    match build_skin_body(arise)
-    {
+match build_skin_body(arise)
+{
     Err(why)           => {error!("couldn't evolve skin body: {}", why); return Err(why)}
-    Ok(arise_body)     => {debug!("ok, length of modified arise-text is now: {:4}", arise_body.skin_out.len());      arise = arise_body }  // be careful here, it's tricky...
-    };
+    Ok(arise_body)     => { arise = arise_body }  // be careful here, it's tricky...
+};
+debug!("ok, lengths now: arise-in {:4}, skin-out {:4}", arise.arise_in.len(), arise.skin_out.len());
 
 match build_skin_footer(arise)
-    {
+{
     Err(why)           => {error!("couldn't evolve skin footer: {}", why); return Err(why)}
-    Ok(arise_footer)   => {debug!("ok, length of modified arise-text is now: {:4}", arise_footer.skin_out.len());    arise = arise_footer }  // be careful here, it's tricky...
-    };
+    Ok(arise_footer)   => { arise = arise_footer }  // be careful here, it's tricky...
+};
+debug!("ok, lengths now: arise-in {:4}, skin-out {:4}", arise.arise_in.len(), arise.skin_out.len());
+
 
 debug!("-----------------------------------------------------------");
 debug!("Amounts of Literals, Operators and Keys found:");
@@ -528,7 +536,6 @@ debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_METERS_END     ), arise.section_
 debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_BEGIN   ), arise.section_footer_begin_cnt    );
 debug!("{:>26} = {:3}",format!("\"{}\"",SECTION_FOOTER_END     ), arise.section_footer_end_cnt      );
     
-    
 
     // Open a file in write-only mode, returns `io::Result<File>`
 let mut file = match File::create(&out_full_filename) 
@@ -537,16 +544,34 @@ let mut file = match File::create(&out_full_filename)
     Ok(file) => {debug!("ok, created {}"        , out_full_filename.display()); file}
     };
 
-// TESTING: Write the full contents of gen-buffer to output-skin-file, return io::Result<()> if successful
+// Write the full contents of generated rainmeter-ini-file to the skin-file, return io::Result<()> if successful
  match file.write_all(arise.skin_out.as_bytes()) 
     {
-    Err(why) => {error!("couldn't write to {}: {}", out_full_filename.display(), why); return Err(why.into())}
-    Ok(_)    => {debug!("successfully wrote to {}", out_full_filename.display()); Ok(true) }
+    Err(why) => {error!("couldn't write to {}: {}", out_full_filename.display(), why); Err(why.into())}
+    Ok(_)    => {debug!("successfully wrote to {}", out_full_filename.display());      Ok(true) }
     }
 
-// file_handle1 goes out of scope and the new_file1 file gets closed.
+// file -handle goes out of scope and the file gets closed.
 }
 
+
+ 
+/// ___________________________________________________________________________________________________________________________
+/// **`FUNCTION:   `**  ``build_metainfo``   
+/// **`TYPE:       `**  local, common function   
+/// ___________________________________________________________________________________________________________________________
+/// **`PARAMETER:  `** **` arise_p       `** Arise-bucket to be processed, contains (remainder of input and start of output)   
+/// **`RETURNS:    `** **` Result -->    `** - OK(status flag: true = successful, false = failed)   
+/// **`            `** **`     or -->    `** - Error   
+/// ___________________________________________________________________________________________________________________________
+/// **`DESCRIPTION:`**   
+/// Processes the metainfo-section of the arise-input, evolves it into a part of the rainmeter-skin output.   
+/// The input gets shortened by the processed section, the output is extended with the generated Rainmeter-ini-code.
+/// ___________________________________________________________________________________________________________________________
+/// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
+/// :---    | :---       | :---:     | :---   
+/// 1.0     | 2021-11-06 | Clunion   | initial version   
+/// ___________________________________________________________________________________________________________________________
 
 fn build_metainfo(mut arise_p: AriseBucket) -> Result<AriseBucket, Box<dyn Error>>
 {
@@ -558,35 +583,53 @@ let mut line_num = 0;
 trace!("-----------------------------------------------------------");
 for s_cur_line in s_arise_lines
     {                                                  
-    line_num = line_num + 1;    
-    if s_cur_line.contains(COMMENT_SINGLELINE      ) {arise_p.comment_singleline_cnt     += 1; println!("[{:4}] found COMMENT_SINGLELINE     ", line_num);}
-    if s_cur_line.contains(COMMENT_MULTILINE_BEGIN ) {arise_p.comment_multiline_begin_cnt+= 1; println!("[{:4}] found COMMENT_MULTILINE_BEGIN", line_num);}
-    if s_cur_line.contains(COMMENT_MULTILINE_END   ) {arise_p.comment_multiline_end_cnt  += 1; println!("[{:4}] found COMMENT_MULTILINE_END  ", line_num);}
-    if s_cur_line.contains(OPERATOR_ASSIGN         ) {arise_p.operator_assign_cnt        += 1; println!("[{:4}] found OPERATOR_ASSIGN        ", line_num);}
-    if s_cur_line.contains(OPERATOR_PLUS           ) {arise_p.operator_plus_cnt          += 1; println!("[{:4}] found OPERATOR_PLUS          ", line_num);}
-    if s_cur_line.contains(OPERATOR_MINUS          ) {arise_p.operator_minus_cnt         += 1; println!("[{:4}] found OPERATOR_MINUS         ", line_num);}
-    if s_cur_line.contains(KEY_NAME_BEGIN          ) {arise_p.key_name_begin_cnt         += 1; println!("[{:4}] found KEY_NAME_BEGIN         ", line_num);}
-    if s_cur_line.contains(KEY_NAME_END            ) {arise_p.key_name_end_cnt           += 1; println!("[{:4}] found KEY_NAME_END           ", line_num);}
-    if s_cur_line.contains(MULTIPLIER_LIST_BEGIN   ) {arise_p.multiplier_list_begin_cnt  += 1; println!("[{:4}] found MULTIPLIER_LIST_BEGIN  ", line_num);}
-    if s_cur_line.contains(MULTIPLIER_LIST_END     ) {arise_p.multiplier_list_end_cnt    += 1; println!("[{:4}] found MULTIPLIER_LIST_END    ", line_num);}
-    if s_cur_line.contains(OFFSET_VARIABLES_BEGIN  ) {arise_p.offset_variables_begin_cnt += 1; println!("[{:4}] found OFFSET_VARIABLES_BEGIN ", line_num);}
-    if s_cur_line.contains(OFFSET_VARIABLES_END    ) {arise_p.offset_variables_end_cnt   += 1; println!("[{:4}] found OFFSET_VARIABLES_END   ", line_num);}
-    if s_cur_line.contains(SECTION_HEADER_BEGIN    ) {arise_p.section_header_begin_cnt   += 1; println!("[{:4}] found SECTION_HEADER_BEGIN   ", line_num);}
-    if s_cur_line.contains(SECTION_HEADER_END      ) {arise_p.section_header_end_cnt     += 1; println!("[{:4}] found SECTION_HEADER_END     ", line_num);}
-    if s_cur_line.contains(SECTION_MEASURES_BEGIN  ) {arise_p.section_measures_begin_cnt += 1; println!("[{:4}] found SECTION_MEASURES_BEGIN ", line_num);}
-    if s_cur_line.contains(SECTION_MEASURES_END    ) {arise_p.section_measures_end_cnt   += 1; println!("[{:4}] found SECTION_MEASURES_END   ", line_num);}
-    if s_cur_line.contains(SECTION_METERS_BEGIN    ) {arise_p.section_meters_begin_cnt   += 1; println!("[{:4}] found SECTION_METERS_BEGIN   ", line_num);}
-    if s_cur_line.contains(SECTION_METERS_END      ) {arise_p.section_meters_end_cnt     += 1; println!("[{:4}] found SECTION_METERS_END     ", line_num);}
-    if s_cur_line.contains(SECTION_FOOTER_BEGIN    ) {arise_p.section_footer_begin_cnt   += 1; println!("[{:4}] found SECTION_FOOTER_BEGIN   ", line_num);}
-    if s_cur_line.contains(SECTION_FOOTER_END      ) {arise_p.section_footer_end_cnt     += 1; println!("[{:4}] found SECTION_FOOTER_END     ", line_num);}
+    line_num += 1;    
+    debug!("analyzing line:[{:4}] {}", line_num, s_cur_line);
 
-    trace!("analyzing line: {}", s_cur_line);
+    if s_cur_line.contains(COMMENT_SINGLELINE      ) {arise_p.comment_singleline_cnt     += 1; debug!("[{:4}] found COMMENT_SINGLELINE     ", line_num);}
+    if s_cur_line.contains(COMMENT_MULTILINE_BEGIN ) {arise_p.comment_multiline_begin_cnt+= 1; debug!("[{:4}] found COMMENT_MULTILINE_BEGIN", line_num);}
+    if s_cur_line.contains(COMMENT_MULTILINE_END   ) {arise_p.comment_multiline_end_cnt  += 1; debug!("[{:4}] found COMMENT_MULTILINE_END  ", line_num);}
+    if s_cur_line.contains(OPERATOR_ASSIGN         ) {arise_p.operator_assign_cnt        += 1; debug!("[{:4}] found OPERATOR_ASSIGN        ", line_num);}
+    if s_cur_line.contains(OPERATOR_PLUS           ) {arise_p.operator_plus_cnt          += 1; debug!("[{:4}] found OPERATOR_PLUS          ", line_num);}
+    if s_cur_line.contains(OPERATOR_MINUS          ) {arise_p.operator_minus_cnt         += 1; debug!("[{:4}] found OPERATOR_MINUS         ", line_num);}
+    if s_cur_line.contains(KEY_NAME_BEGIN          ) {arise_p.key_name_begin_cnt         += 1; debug!("[{:4}] found KEY_NAME_BEGIN         ", line_num);}
+    if s_cur_line.contains(KEY_NAME_END            ) {arise_p.key_name_end_cnt           += 1; debug!("[{:4}] found KEY_NAME_END           ", line_num);}
+    if s_cur_line.contains(MULTIPLIER_LIST_BEGIN   ) {arise_p.multiplier_list_begin_cnt  += 1; debug!("[{:4}] found MULTIPLIER_LIST_BEGIN  ", line_num);}
+    if s_cur_line.contains(MULTIPLIER_LIST_END     ) {arise_p.multiplier_list_end_cnt    += 1; debug!("[{:4}] found MULTIPLIER_LIST_END    ", line_num);}
+    if s_cur_line.contains(OFFSET_VARIABLES_BEGIN  ) {arise_p.offset_variables_begin_cnt += 1; debug!("[{:4}] found OFFSET_VARIABLES_BEGIN ", line_num);}
+    if s_cur_line.contains(OFFSET_VARIABLES_END    ) {arise_p.offset_variables_end_cnt   += 1; debug!("[{:4}] found OFFSET_VARIABLES_END   ", line_num);}
+    if s_cur_line.contains(SECTION_HEADER_BEGIN    ) {arise_p.section_header_begin_cnt   += 1; debug!("[{:4}] found SECTION_HEADER_BEGIN   ", line_num);}
+    if s_cur_line.contains(SECTION_HEADER_END      ) {arise_p.section_header_end_cnt     += 1; debug!("[{:4}] found SECTION_HEADER_END     ", line_num);}
+    if s_cur_line.contains(SECTION_MEASURES_BEGIN  ) {arise_p.section_measures_begin_cnt += 1; debug!("[{:4}] found SECTION_MEASURES_BEGIN ", line_num);}
+    if s_cur_line.contains(SECTION_MEASURES_END    ) {arise_p.section_measures_end_cnt   += 1; debug!("[{:4}] found SECTION_MEASURES_END   ", line_num);}
+    if s_cur_line.contains(SECTION_METERS_BEGIN    ) {arise_p.section_meters_begin_cnt   += 1; debug!("[{:4}] found SECTION_METERS_BEGIN   ", line_num);}
+    if s_cur_line.contains(SECTION_METERS_END      ) {arise_p.section_meters_end_cnt     += 1; debug!("[{:4}] found SECTION_METERS_END     ", line_num);}
+    if s_cur_line.contains(SECTION_FOOTER_BEGIN    ) {arise_p.section_footer_begin_cnt   += 1; debug!("[{:4}] found SECTION_FOOTER_BEGIN   ", line_num);}
+    if s_cur_line.contains(SECTION_FOOTER_END      ) {arise_p.section_footer_end_cnt     += 1; debug!("[{:4}] found SECTION_FOOTER_END     ", line_num);}
+
     }
 
 arise_p.skin_out = metainfo;
 
 Ok(arise_p)
 }
+
+/// ___________________________________________________________________________________________________________________________
+/// **`FUNCTION:   `**  ``build_skin_header``   
+/// **`TYPE:       `**  local, common function   
+/// ___________________________________________________________________________________________________________________________
+/// **`PARAMETER:  `** **` arise_p       `** Arise-bucket to be processed, contains (remainder of input and start of output)   
+/// **`RETURNS:    `** **` Result -->    `** - OK(status flag: true = successful, false = failed)   
+/// **`            `** **`     or -->    `** - Error   
+/// ___________________________________________________________________________________________________________________________
+/// **`DESCRIPTION:`**   
+/// Processes the skin_header-section of the arise-input, evolves it into a part of the rainmeter-skin output.   
+/// The input gets shortened by the processed section, the output is extended with the generated Rainmeter-ini-code.
+/// ___________________________________________________________________________________________________________________________
+/// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
+/// :---    | :---       | :---:     | :---   
+/// 1.0     | 2021-11-06 | Clunion   | initial version   
+/// ___________________________________________________________________________________________________________________________
 
 fn build_skin_header(mut arise_p: AriseBucket) -> Result<AriseBucket, Box<dyn Error>>
 {
@@ -609,6 +652,23 @@ arise_p.skin_out = format!("{}\n{}", arise_p.skin_out, header);
 Ok(arise_p)
 }
 
+/// ___________________________________________________________________________________________________________________________
+/// **`FUNCTION:   `**  ``build_skin_body``   
+/// **`TYPE:       `**  local, common function   
+/// ___________________________________________________________________________________________________________________________
+/// **`PARAMETER:  `** **` arise_p       `** Arise-bucket to be processed, contains (remainder of input and start of output)   
+/// **`RETURNS:    `** **` Result -->    `** - OK(status flag: true = successful, false = failed)   
+/// **`            `** **`     or -->    `** - Error   
+/// ___________________________________________________________________________________________________________________________
+/// **`DESCRIPTION:`**   
+/// Processes the skin_body-section of the arise-input, evolves it into a part of the rainmeter-skin output.   
+/// The input gets shortened by the processed section, the output is extended with the generated Rainmeter-ini-code.
+/// ___________________________________________________________________________________________________________________________
+/// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
+/// :---    | :---       | :---:     | :---   
+/// 1.0     | 2021-11-06 | Clunion   | initial version   
+/// ___________________________________________________________________________________________________________________________
+
 fn build_skin_body(mut arise_p: AriseBucket) -> Result<AriseBucket, Box<dyn Error>>
 {
 let body : String = 
@@ -629,6 +689,24 @@ arise_p.skin_out = format!("{}\n{}", arise_p.skin_out, body);
 Ok(arise_p)
 }
 
+/// ___________________________________________________________________________________________________________________________
+/// **`FUNCTION:   `**  ``build_skin_footer``   
+/// **`TYPE:       `**  local, common function   
+/// ___________________________________________________________________________________________________________________________
+/// **`PARAMETER:  `** **` arise_p       `** Arise-bucket to be processed, contains (remainder of input and start of output)   
+/// **`RETURNS:    `** **` Result -->    `** - OK(status flag: true = successful, false = failed)   
+/// **`            `** **`     or -->    `** - Error   
+/// ___________________________________________________________________________________________________________________________
+/// **`DESCRIPTION:`**   
+/// Processes the skin_footer-section of the arise-input, evolves it into a part of the rainmeter-skin output.   
+/// The input gets shortened by the processed section, the output is extended with the generated Rainmeter-ini-code.
+/// ___________________________________________________________________________________________________________________________
+/// VERSION:| DATE:      | AUTHOR:   | CHANGES:   
+/// :---    | :---       | :---:     | :---   
+/// 1.0     | 2021-11-06 | Clunion   | initial version   
+/// ___________________________________________________________________________________________________________________________
+
+
 fn build_skin_footer(mut arise_p: AriseBucket) -> Result<AriseBucket, Box<dyn Error>>
 {
 let footer : String = 
@@ -640,9 +718,3 @@ arise_p.skin_out = format!("{}\n{}", arise_p.skin_out, footer);
 
 Ok(arise_p)
 }
-
-
-// fn fail(err: Box<dyn Error>) -> String {
-//     error!("Error: something failed, info: {}", err);
-//     std::process::exit(1)
-// }

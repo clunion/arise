@@ -1,7 +1,7 @@
 ### shortcuts for Rust's cargo-Build-processes:
-
+ 
 printf "##>>>>> cargo clippy lint:\n"
-if ! cargo clippy --tests --examples --benches --all-features --color always; then
+if ! cargo -vv clippy --tests --examples --benches --all-features --color always; then
     printf "##<<<<< cargo clippy returned error: " $? "\n\n"
     exit
 else
@@ -9,7 +9,6 @@ else
 fi 
 
 printf "##>>>>> cargo build:\n"
-#cargo build             2>&1 | tee -a log/build_debug.log
 if ! cargo build; then
     printf "##<<<<< cargo build returned error: "$? "\n"
     exit
