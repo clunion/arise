@@ -1,0 +1,61 @@
+;-----------------------------------------------------------------
+; A Rainmeter Skin Evolver - definition
+; <-- single line comment char, same as in rainmeter skins
+;-----------------------------------------------------------------
+
+/* <-- start of multi line comment, as in Rust and some other languages
+
+The Rainmeter Skin Evolver generates a skin definition/description file (<skin_name>.ini) for Rainmeter.
+
+This is a rainmeter skin evolver definition file (<skin_name>.arise) for use with the "arise" executable.
+
+The evolver definition has 5 parts:
+	1. the evolver control section
+	2. header   (copied to the begin of the skin definition (<skin_name>.ini) as a single instance)
+	3. measures (gets multiplied in the skin definition)
+	4. meters   (gets multiplied in the skin definition)
+	5. footer   (copied to the end of the skin definition as a single instance)
+*/
+
+INSTALL_SKIN_FOLDER         := "C:\\Users\\YourName\\Documents\\Rainmeter\\Skins"
+RAINMETER_EXE               := "C:\Program Files\Rainmeter\Rainmeter.exe"
+RAINMETER_PARAM_REFRESHAPP  := "!RefreshApp"                                ; see: https://forum.rainmeter.net/viewtopic.php?t=11627
+RAINMETER_PARAM_MANAGE      := "!Manage Skins <ConfigName> <SkinIniFile>"
+
+<header begin>
+	;-----------------------------------------------
+	; A very simple "Hello-World!"-type Skin
+	;-----------------------------------------------
+
+    [Metadata]
+    Name=AriseWorld
+    Author=clunion
+    Information=Shows a "Hello, World!"-kind text display
+    Version=0.1
+    License=Creative Commons Attribution - Non - Commercial - Share Alike 3.0
+
+    [Rainmeter]
+    Update=10000
+<header end>
+
+<measures begin>
+    ; empty, section can be omitted
+<measures end>
+
+<meters begin>
+	;-----------------------------------------------------
+	; Meters:
+	;-----------------------------------------------------
+    [SimpleMeter]
+    Meter=String
+    Text=" Arise, World!"
+    AntiAlias=1
+    FontSize=40
+    FontFace=SegoeUI
+    FontColor=200,220,255
+    SolidColor=64,64,64,128,1
+<meters end>
+
+<footer begin>
+    ; empty, section can be omitted
+<footer end>
